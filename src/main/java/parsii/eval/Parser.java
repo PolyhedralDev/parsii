@@ -45,12 +45,12 @@ public class Parser {
     private final Scope scope;
     private List<ParseError> errors = new ArrayList<>();
     private Tokenizer tokenizer;
-    private static Map<String, Function> functionTable;
+    private Map<String, Function> functionTable;
 
     /*
      * Setup well known functions
      */
-    static {
+    {
         functionTable = new TreeMap<>();
 
         registerFunction("sin", Functions.SIN);
@@ -81,10 +81,19 @@ public class Parser {
         registerFunction("if", Functions.IF);
     }
 
-    protected Parser(Reader input, Scope scope) {
+    protected Parser(Reader input, Scope scope, Map<String, Function> functionTable) {
         this.scope = scope;
         tokenizer = new Tokenizer(input);
         tokenizer.setProblemCollector(errors);
+        this.functionTable.putAll(functionTable);
+    }
+
+    public Parser() {
+        this(new StringReader(""), new Scope(), new TreeMap<>());
+    }
+
+    public Scope getScope() {
+        return scope;
     }
 
     /**
@@ -96,7 +105,7 @@ public class Parser {
      *                 overridden
      * @param function the function which is invoked as an expression is evaluated
      */
-    public static void registerFunction(String name, Function function) {
+    public void registerFunction(String name, Function function) {
         functionTable.put(name, function);
     }
 
@@ -107,8 +116,8 @@ public class Parser {
      * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
-    public static Expression parse(String input) throws ParseException {
-        return new Parser(new StringReader(input), new Scope()).parse();
+    public Expression parse(String input) throws ParseException {
+        return new Parser(new StringReader(input), new Scope(), functionTable).parse();
     }
 
     /**
@@ -118,22 +127,8 @@ public class Parser {
      * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
-    public static Expression parse(Reader input) throws ParseException {
-        return new Parser(input, new Scope()).parse();
-    }
-
-    /**
-     * Parses the given input into an expression.
-     * <p>
-     * Referenced variables will be resolved using the given Scope
-     *
-     * @param input the expression to be parsed
-     * @param scope the scope used to resolve variables
-     * @return the resulting AST as expression
-     * @throws ParseException if the expression contains one or more errors
-     */
-    public static Expression parse(String input, Scope scope) throws ParseException {
-        return new Parser(new StringReader(input), scope).parse();
+    public Expression parse(Reader input) throws ParseException {
+        return new Parser(input, new Scope(), functionTable).parse();
     }
 
     /**
@@ -146,8 +141,22 @@ public class Parser {
      * @return the resulting AST as expression
      * @throws ParseException if the expression contains one or more errors
      */
-    public static Expression parse(Reader input, Scope scope) throws ParseException {
-        return new Parser(input, scope).parse();
+    public Expression parse(String input, Scope scope) throws ParseException {
+        return new Parser(new StringReader(input), scope, functionTable).parse();
+    }
+
+    /**
+     * Parses the given input into an expression.
+     * <p>
+     * Referenced variables will be resolved using the given Scope
+     *
+     * @param input the expression to be parsed
+     * @param scope the scope used to resolve variables
+     * @return the resulting AST as expression
+     * @throws ParseException if the expression contains one or more errors
+     */
+    public Expression parse(Reader input, Scope scope) throws ParseException {
+        return new Parser(input, scope, functionTable).parse();
     }
 
     /**
@@ -156,7 +165,7 @@ public class Parser {
      * @return the parsed expression
      * @throws ParseException if the expression contains one or more errors
      */
-    protected Expression parse() throws ParseException {
+    public Expression parse() throws ParseException {
         Expression result = expression().simplify();
         if (tokenizer.current().isNotEnd()) {
             Token token = tokenizer.consume();
