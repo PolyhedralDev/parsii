@@ -8,262 +8,264 @@
 
 package parsii.eval;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.util.List;
 
 /**
  * Contains a set of predefined standard functions.
  * <p>
- * Provides mostly functions defined by {@link Math}
+ * Provides mostly functions defined by {@link FastMath}
  */
 public class Functions {
 
     /**
-     * Provides access to {@link Math#sin(double)}
+     * Provides access to {@link FastMath#sin(double)}
      */
     public static final Function SIN = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.sin(a);
+            return FastMath.sin(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#sinh(double)}
+     * Provides access to {@link FastMath#sinh(double)}
      */
     public static final Function SINH = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.sinh(a);
+            return FastMath.sinh(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#cos(double)}
+     * Provides access to {@link FastMath#cos(double)}
      */
     public static final Function COS = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.cos(a);
+            return FastMath.cos(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#cosh(double)}
+     * Provides access to {@link FastMath#cosh(double)}
      */
     public static final Function COSH = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.cosh(a);
+            return FastMath.cosh(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#tan(double)}
+     * Provides access to {@link FastMath#tan(double)}
      */
     public static final Function TAN = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.tan(a);
+            return FastMath.tan(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#tanh(double)}
+     * Provides access to {@link FastMath#tanh(double)}
      */
     public static final Function TANH = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.tanh(a);
+            return FastMath.tanh(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#abs(double)}
+     * Provides access to {@link FastMath#abs(double)}
      */
     public static final Function ABS = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.abs(a);
+            return FastMath.abs(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#asin(double)}
+     * Provides access to {@link FastMath#asin(double)}
      */
     public static final Function ASIN = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.asin(a);
+            return FastMath.asin(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#acos(double)}
+     * Provides access to {@link FastMath#acos(double)}
      */
     public static final Function ACOS = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.acos(a);
+            return FastMath.acos(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#atan(double)}
+     * Provides access to {@link FastMath#atan(double)}
      */
     public static final Function ATAN = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.atan(a);
+            return FastMath.atan(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#atan2(double, double)}
+     * Provides access to {@link FastMath#atan2(double, double)}
      */
     public static final Function ATAN2 = new BinaryFunction() {
         @Override
         protected double eval(double a, double b) {
-            return Math.atan2(a, b);
+            return FastMath.atan2(a, b);
         }
     };
 
     /**
-     * Provides access to {@link Math#round(double)}
+     * Provides access to {@link FastMath#round(double)}
      */
     public static final Function ROUND = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.round(a);
+            return FastMath.round(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#floor(double)}
+     * Provides access to {@link FastMath#floor(double)}
      */
     public static final Function FLOOR = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.floor(a);
+            return FastMath.floor(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#ceil(double)}
+     * Provides access to {@link FastMath#ceil(double)}
      */
     public static final Function CEIL = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.ceil(a);
+            return FastMath.ceil(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#pow(double, double)}
+     * Provides access to {@link FastMath#pow(double, double)}
      */
     public static final Function POW = new BinaryFunction() {
         @Override
         protected double eval(double a, double b) {
-            return Math.pow(a, b);
+            return FastMath.pow(a, b);
         }
     };
 
     /**
-     * Provides access to {@link Math#sqrt(double)}
+     * Provides access to {@link FastMath#sqrt(double)}
      */
     public static final Function SQRT = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.sqrt(a);
+            return FastMath.sqrt(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#exp(double)}
+     * Provides access to {@link FastMath#exp(double)}
      */
     public static final Function EXP = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.exp(a);
+            return FastMath.exp(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#log(double)}
+     * Provides access to {@link FastMath#log(double)}
      */
     public static final Function LN = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.log(a);
+            return FastMath.log(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#log10(double)}
+     * Provides access to {@link FastMath#log10(double)}
      */
     public static final Function LOG = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.log10(a);
+            return FastMath.log10(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#min(double, double)}
+     * Provides access to {@link FastMath#min(double, double)}
      */
     public static final Function MIN = new BinaryFunction() {
         @Override
         protected double eval(double a, double b) {
-            return Math.min(a, b);
+            return FastMath.min(a, b);
         }
     };
 
     /**
-     * Provides access to {@link Math#max(double, double)}
+     * Provides access to {@link FastMath#max(double, double)}
      */
     public static final Function MAX = new BinaryFunction() {
         @Override
         protected double eval(double a, double b) {
-            return Math.max(a, b);
+            return FastMath.max(a, b);
         }
     };
 
     /**
-     * Provides access to {@link Math#random()} which will be multiplied by the given argument.
+     * Provides access to {@link FastMath#random()} which will be multiplied by the given argument.
      */
     public static final Function RND = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.random() * a;
+            return FastMath.random() * a;
         }
     };
 
     /**
-     * Provides access to {@link Math#signum(double)}
+     * Provides access to {@link FastMath#signum(double)}
      */
     public static final Function SIGN = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.signum(a);
+            return FastMath.signum(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#toDegrees(double)}
+     * Provides access to {@link FastMath#toDegrees(double)}
      */
     public static final Function DEG = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.toDegrees(a);
+            return FastMath.toDegrees(a);
         }
     };
 
     /**
-     * Provides access to {@link Math#toRadians(double)}
+     * Provides access to {@link FastMath#toRadians(double)}
      */
     public static final Function RAD = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.toRadians(a);
+            return FastMath.toRadians(a);
         }
     };
 
@@ -290,7 +292,7 @@ public class Functions {
             if (Double.isNaN(check)) {
                 return check;
             }
-            if (Math.abs(check) > 0) {
+            if (FastMath.abs(check) > 0) {
                 return args.get(1).evaluate();
             } else {
                 return args.get(2).evaluate();

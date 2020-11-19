@@ -8,6 +8,8 @@
 
 package parsii.eval;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +37,7 @@ public class Scope {
     /**
      * Creates a new empty scope.
      * <p>
-     * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
+     * The scope will not be completely empty, as {@link FastMath#PI} (pi) and {@link FastMath#E} (E) are always
      * defined as constants.
      * <p>
      * If an not yet known variable is accessed, it will be created and initialized with 0.
@@ -57,8 +59,8 @@ public class Scope {
         if (root == null) {
             synchronized (Scope.class) {
                 root = new Scope(true);
-                root.create("pi").makeConstant(Math.PI);
-                root.create("euler").makeConstant(Math.E);
+                root.create("pi").makeConstant(FastMath.PI);
+                root.create("euler").makeConstant(FastMath.E);
             }
         }
 
