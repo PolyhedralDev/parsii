@@ -26,7 +26,8 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - name: Build parsii
+        if: github.repository != 'PolyhedralDev/parsii' || github.ref != 'refs/heads/master'
         run: mvn package
-      - name: Publish parsii
-        if: github.repository == 'PolyhedralDev/parsii'
-        run: mvn deploy
+      - name: Build and Publish parsii
+        if: github.repository == 'PolyhedralDev/parsii' && github.ref == 'refs/heads/master'
+        run: mvn deploy -Dregistry=https://maven.pkg.github.com/PolyhedralDev/parsii -Dtoken=$GH_TOKEN
