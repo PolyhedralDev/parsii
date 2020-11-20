@@ -30,4 +30,6 @@ jobs:
         run: mvn package
       - name: Build and Publish parsii
         if: github.repository == 'PolyhedralDev/parsii' && github.ref == 'refs/heads/master'
-        run: mvn deploy -Dregistry=https://maven.pkg.github.com/PolyhedralDev/parsii -Dtoken=$GH_TOKEN
+        run: mvn -B deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
