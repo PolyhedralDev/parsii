@@ -19,7 +19,14 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Pull Maven Cache
+        uses: actions/cache@v2
+        id: maven-cache
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - name: Build parsii
         run: mvn package
       - name: Publish parsii
+        if: github.repository == 'PolyhedralDev/parsii'
         run: mvn deploy
