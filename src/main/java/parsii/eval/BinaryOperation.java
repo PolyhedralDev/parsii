@@ -8,7 +8,7 @@
 
 package parsii.eval;
 
-import org.apache.commons.math3.util.FastMath;
+import net.jafama.FastMath;
 
 /**
  * Represents a binary operation.
