@@ -1,5 +1,12 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.2</version>
+        </dependency>
+    </dependencies>
     <parent>
         <groupId>com.scireum</groupId>
         <artifactId>sirius-parent</artifactId>

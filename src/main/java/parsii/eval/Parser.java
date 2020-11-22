@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 /**
  * Parses a given mathematical expression into an abstract syntax tree which can be evaluated.
  * <p>
@@ -41,18 +42,17 @@ import java.util.TreeMap;
  * }
  */
 public class Parser {
-
-    private final Scope scope;
-    private List<ParseError> errors = new ArrayList<>();
-    private Tokenizer tokenizer;
-    private Map<String, Function> functionTable;
-
+    
+    private final Scope                 scope;
+    private       List<ParseError>      errors = new ArrayList<>();
+    private       Tokenizer             tokenizer;
+    private       Map<String, Function> functionTable;
+    
     /*
      * Setup well known functions
-     */
-    {
+     */ {
         functionTable = new TreeMap<>();
-
+        
         registerFunction("sin", Functions.SIN);
         registerFunction("cos", Functions.COS);
         registerFunction("tan", Functions.TAN);
@@ -79,23 +79,33 @@ public class Parser {
         registerFunction("rnd", Functions.RND);
         registerFunction("sign", Functions.SIGN);
         registerFunction("if", Functions.IF);
+        // custom functions
+        registerFunction("root", Functions.ROOT);
+        registerFunction("cbrt", Functions.CBRT);
+        registerFunction("sigmoid", Functions.SIGMOID);
+        registerFunction("int_and", Functions.INT_AND);
+        registerFunction("int_left_bit_shift", Functions.INT_LEFT_SHIFT);
+        registerFunction("int_right_bit_shift", Functions.INT_RIGHT_SHIFT);
+        registerFunction("int_not", Functions.INT_NOT);
+        registerFunction("int_or", Functions.INT_OR);
+        registerFunction("int_xor", Functions.INT_XOR);
     }
-
+    
+    public Parser() {
+        this(new StringReader(""), new Scope(), new TreeMap<>());
+    }
+    
     protected Parser(Reader input, Scope scope, Map<String, Function> functionTable) {
         this.scope = scope;
         tokenizer = new Tokenizer(input);
         tokenizer.setProblemCollector(errors);
         this.functionTable.putAll(functionTable);
     }
-
-    public Parser() {
-        this(new StringReader(""), new Scope(), new TreeMap<>());
-    }
-
+    
     public Scope getScope() {
         return scope;
     }
-
+    
     /**
      * Registers a new function which can be referenced from within an expression.
      * <p>
@@ -108,29 +118,33 @@ public class Parser {
     public void registerFunction(String name, Function function) {
         functionTable.put(name, function);
     }
-
+    
     /**
      * Parses the given input into an expression.
      *
      * @param input the expression to be parsed
+     *
      * @return the resulting AST as expression
+     *
      * @throws ParseException if the expression contains one or more errors
      */
     public Expression parse(String input) throws ParseException {
         return new Parser(new StringReader(input), new Scope(), functionTable).parse();
     }
-
+    
     /**
      * Parses the given input into an expression.
      *
      * @param input the expression to be parsed
+     *
      * @return the resulting AST as expression
+     *
      * @throws ParseException if the expression contains one or more errors
      */
     public Expression parse(Reader input) throws ParseException {
         return new Parser(input, new Scope(), functionTable).parse();
     }
-
+    
     /**
      * Parses the given input into an expression.
      * <p>
@@ -138,13 +152,15 @@ public class Parser {
      *
      * @param input the expression to be parsed
      * @param scope the scope used to resolve variables
+     *
      * @return the resulting AST as expression
+     *
      * @throws ParseException if the expression contains one or more errors
      */
     public Expression parse(String input, Scope scope) throws ParseException {
         return new Parser(new StringReader(input), scope, functionTable).parse();
     }
-
+    
     /**
      * Parses the given input into an expression.
      * <p>
@@ -152,17 +168,20 @@ public class Parser {
      *
      * @param input the expression to be parsed
      * @param scope the scope used to resolve variables
+     *
      * @return the resulting AST as expression
+     *
      * @throws ParseException if the expression contains one or more errors
      */
     public Expression parse(Reader input, Scope scope) throws ParseException {
         return new Parser(input, scope, functionTable).parse();
     }
-
+    
     /**
      * Parses the expression in <tt>input</tt>
      *
      * @return the parsed expression
+     *
      * @throws ParseException if the expression contains one or more errors
      */
     public Expression parse() throws ParseException {
@@ -178,7 +197,7 @@ public class Parser {
         }
         return result;
     }
-
+    
     /**
      * Parser rule for parsing an expression.
      * <p>
@@ -201,7 +220,7 @@ public class Parser {
         }
         return left;
     }
-
+    
     /**
      * Parser rule for parsing a relational expression.
      * <p>
@@ -244,7 +263,7 @@ public class Parser {
         }
         return left;
     }
-
+    
     /**
      * Parser rule for parsing a term.
      * <p>
@@ -270,10 +289,10 @@ public class Parser {
                 return reOrder(left, right, BinaryOperation.Op.ADD);
             }
         }
-
+        
         return left;
     }
-
+    
     /**
      * Parser rule for parsing a product.
      * <p>
@@ -300,7 +319,7 @@ public class Parser {
         }
         return left;
     }
-
+    
     /*
      * Reorders the operands of the given operation in order to generate a "left handed" AST which performs evaluations
      * in natural order (from left to right).
@@ -315,7 +334,7 @@ public class Parser {
         }
         return new BinaryOperation(op, left, right);
     }
-
+    
     protected void replaceLeft(BinaryOperation target, Expression newLeft, BinaryOperation.Op op) {
         if (target.getLeft() instanceof BinaryOperation) {
             BinaryOperation leftOp = (BinaryOperation) target.getLeft();
@@ -326,7 +345,7 @@ public class Parser {
         }
         target.setLeft(new BinaryOperation(op, newLeft, target.getLeft()));
     }
-
+    
     /**
      * Parser rule for parsing a power.
      * <p>
@@ -343,7 +362,7 @@ public class Parser {
         }
         return left;
     }
-
+    
     /**
      * Parser rule for parsing an atom.
      * <p>
@@ -397,7 +416,7 @@ public class Parser {
         }
         return literalAtom();
     }
-
+    
     /**
      * Parser rule for parsing a literal atom.
      * <p>
@@ -448,16 +467,16 @@ public class Parser {
                                                   token.getSource())));
         return Constant.EMPTY;
     }
-
+    
     /**
      * Parses a function call.
      *
      * @return the function call as Expression
      */
     protected Expression functionCall() {
-        FunctionCall call = new FunctionCall();
-        Token funToken = tokenizer.consume();
-        Function fun = functionTable.get(funToken.getContents());
+        FunctionCall call     = new FunctionCall();
+        Token        funToken = tokenizer.consume();
+        Function     fun      = functionTable.get(funToken.getContents());
         if (fun == null) {
             errors.add(ParseError.error(funToken, String.format("Unknown function: '%s'", funToken.getContents())));
         }
@@ -484,7 +503,7 @@ public class Parser {
         }
         return call;
     }
-
+    
     /**
      * Signals that the given token is expected.
      * <p>
