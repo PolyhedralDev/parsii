@@ -76,7 +76,6 @@ public class Parser {
         registerFunction("pow", Functions.POW);
         registerFunction("min", Functions.MIN);
         registerFunction("max", Functions.MAX);
-        registerFunction("rnd", Functions.RND);
         registerFunction("sign", Functions.SIGN);
         registerFunction("if", Functions.IF);
         // custom functions
