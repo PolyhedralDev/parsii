@@ -251,7 +251,7 @@ public class Functions {
             return FastMath.max(a, b);
         }
     };
-
+    
     /**
      * Provides access to {@link FastMath#signum(double)}
      */

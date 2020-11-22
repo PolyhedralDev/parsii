@@ -11,6 +11,7 @@ package parsii.tokenizer;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Abstract data structure for providing streams of items with a lookahead.
  * <p>
@@ -24,37 +25,25 @@ public abstract class Lookahead<T> {
      * Internal buffer containing items which where already created due to lookaheads.
      */
     protected List<T> itemBuffer = new ArrayList<>();
-
+    
     /**
      * Determines if the end of the underlying data source has been reached.
      */
     protected boolean endReached = false;
-
+    
     /**
      * Used to collect problems which occurred when processing the input. This is used instead of classic exceptions,
      * so that errors can be recovered and we can continue to process to input to check for further errors or
      * problems.
      */
     protected List<ParseError> problemCollector = new ArrayList<>();
-
+    
     /**
      * Once the end of the underlying input was reached, an end of input indicator is created and constantly returned
      * for all calls of current and next.
      */
     protected T endOfInputIndicator;
-
-    /**
-     * Returns the item the stream is currently pointing at.
-     * <p>
-     * This method does not change the internal state. Therefore it can be called several times and will always
-     * return the same result.
-     *
-     * @return the item the stream is currently pointing at.
-     */
-    public T current() {
-        return next(0);
-    }
-
+    
     /**
      * Returns the next item after the current one in the stream.
      * <p>
@@ -66,7 +55,19 @@ public abstract class Lookahead<T> {
     public T next() {
         return next(1);
     }
-
+    
+    /**
+     * Returns the item the stream is currently pointing at.
+     * <p>
+     * This method does not change the internal state. Therefore it can be called several times and will always
+     * return the same result.
+     *
+     * @return the item the stream is currently pointing at.
+     */
+    public T current() {
+        return next(0);
+    }
+    
     /**
      * Returns the next n-th item in the stream.
      * <p>
@@ -77,6 +78,7 @@ public abstract class Lookahead<T> {
      * return the same result.
      *
      * @param offset the number of items to skip
+     *
      * @return the n-th item in the stream
      */
     public T next(int offset) {
@@ -100,7 +102,7 @@ public abstract class Lookahead<T> {
             return itemBuffer.get(offset);
         }
     }
-
+    
     /**
      * Creates the end of input indicator item.
      * <p>
@@ -109,14 +111,7 @@ public abstract class Lookahead<T> {
      * @return a special item which marks the end of the input
      */
     protected abstract T endOfInput();
-
-    /**
-     * Fetches the next item from the stream.
-     *
-     * @return the next item in the stream or <tt>null</tt> to indicate that the end was reached
-     */
-    protected abstract T fetch();
-
+    
     /**
      * Removes and returns the current item from the stream.
      * <p>After this method was called, all calls to {@link #current()} will then return the item, which
@@ -129,7 +124,14 @@ public abstract class Lookahead<T> {
         consume(1);
         return result;
     }
-
+    
+    /**
+     * Fetches the next item from the stream.
+     *
+     * @return the next item in the stream or <tt>null</tt> to indicate that the end was reached
+     */
+    protected abstract T fetch();
+    
     /**
      * Consumes (removes) <tt>numberOfItems</tt> at once.
      * <p>
@@ -155,17 +157,17 @@ public abstract class Lookahead<T> {
             }
         }
     }
-
+    
     /**
      * Provides access to the problem collector used by this instance.
      *
      * @return the problem collector used by this class. This returns the internally used list, therefore it should be
-     * treat appropriately
+     *         treat appropriately
      */
     public List<ParseError> getProblemCollector() {
         return problemCollector;
     }
-
+    
     /**
      * Installs the given problem collector.
      *

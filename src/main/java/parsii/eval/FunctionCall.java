@@ -11,20 +11,39 @@ package parsii.eval;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Represents the invocation of a function.
  */
 public class FunctionCall implements Expression {
-
-    private static final long serialVersionUID = 5758404497296893915L;
-    private List<Expression> parameters = new ArrayList<>();
-    private Function function;
-
+    
+    private static final long             serialVersionUID = 5758404497296893915L;
+    private final        List<Expression> parameters       = new ArrayList<>();
+    private              Function         function;
+    
+    /**
+     * Sets the function to evaluate.
+     *
+     * @param function the function to evaluate
+     */
+    public void setFunction(Function function) {
+        this.function = function;
+    }
+    
+    /**
+     * Adds an expression as parameter.
+     *
+     * @param expression the parameter to add
+     */
+    public void addParameter(Expression expression) {
+        parameters.add(expression);
+    }
+    
     @Override
     public double evaluate() {
         return function.eval(parameters);
     }
-
+    
     @Override
     public Expression simplify() {
         if (!function.isNaturalFunction()) {
@@ -37,25 +56,7 @@ public class FunctionCall implements Expression {
         }
         return new Constant(evaluate());
     }
-
-    /**
-     * Sets the function to evaluate.
-     *
-     * @param function the function to evaluate
-     */
-    public void setFunction(Function function) {
-        this.function = function;
-    }
-
-    /**
-     * Adds an expression as parameter.
-     *
-     * @param expression the parameter to add
-     */
-    public void addParameter(Expression expression) {
-        parameters.add(expression);
-    }
-
+    
     /**
      * Returns all parameters added so far.
      *
@@ -64,5 +65,6 @@ public class FunctionCall implements Expression {
     public List<Expression> getParameters() {
         return parameters;
     }
-
+    
+    
 }
