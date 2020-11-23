@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 
-
 /**
  * An efficient reader of character streams, reading character by character and supporting lookaheads.
  * <p>
@@ -20,11 +19,11 @@ import java.io.Reader;
  * be inspected without consuming (removing) the current one.
  */
 public class LookaheadReader extends Lookahead<Char> {
-    
-    private final Reader input;
-    private       int    line = 1;
-    private       int    pos  = 0;
-    
+
+    private Reader input;
+    private int line = 1;
+    private int pos = 0;
+
     /**
      * Creates a new LookaheadReader for the given Reader.
      * <p>
@@ -39,7 +38,12 @@ public class LookaheadReader extends Lookahead<Char> {
         }
         this.input = new BufferedReader(input);
     }
-    
+
+    @Override
+    protected Char endOfInput() {
+        return new Char('\0', line, pos);
+    }
+
     @Override
     protected Char fetch() {
         try {
@@ -58,12 +62,7 @@ public class LookaheadReader extends Lookahead<Char> {
             return null;
         }
     }
-    
-    @Override
-    protected Char endOfInput() {
-        return new Char('\0', line, pos);
-    }
-    
+
     @Override
     public String toString() {
         if (itemBuffer.isEmpty()) {

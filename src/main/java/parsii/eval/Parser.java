@@ -44,9 +44,9 @@ import java.util.TreeMap;
 public class Parser {
     
     private final Scope                 scope;
-    private final List<ParseError>      errors = new ArrayList<>();
-    private final Tokenizer             tokenizer;
-    private final Map<String, Function> functionTable;
+    private       List<ParseError>      errors = new ArrayList<>();
+    private       Tokenizer             tokenizer;
+    private       Map<String, Function> functionTable;
     
     /*
      * Setup well known functions
@@ -438,38 +438,29 @@ public class Parser {
             double value = Double.parseDouble(tokenizer.consume().getContents());
             if (tokenizer.current().is(Token.TokenType.ID)) {
                 String quantifier = tokenizer.current().getContents().intern();
-                switch (quantifier) {
-                    case "n":
-                        value /= 1000000000d;
-                        tokenizer.consume();
-                        break;
-                    case "u":
-                        value /= 1000000d;
-                        tokenizer.consume();
-                        break;
-                    case "m":
-                        value /= 1000d;
-                        tokenizer.consume();
-                        break;
-                    case "K":
-                    case "k":
-                        value *= 1000d;
-                        tokenizer.consume();
-                        break;
-                    case "M":
-                        value *= 1000000d;
-                        tokenizer.consume();
-                        break;
-                    case "G":
-                        value *= 1000000000d;
-                        tokenizer.consume();
-                        break;
-                    default:
-                        Token token = tokenizer.consume();
-                        errors.add(ParseError.error(token,
-                                                    String.format("Unexpected token: '%s'. Expected a valid quantifier.",
-                                                                  token.getSource())));
-                        break;
+                if ("n" == quantifier) {
+                    value /= 1000000000d;
+                    tokenizer.consume();
+                } else if ("u" == quantifier) {
+                    value /= 1000000d;
+                    tokenizer.consume();
+                } else if ("m" == quantifier) {
+                    value /= 1000d;
+                    tokenizer.consume();
+                } else if ("K" == quantifier || "k" == quantifier) {
+                    value *= 1000d;
+                    tokenizer.consume();
+                } else if ("M" == quantifier) {
+                    value *= 1000000d;
+                    tokenizer.consume();
+                } else if ("G" == quantifier) {
+                    value *= 1000000000d;
+                    tokenizer.consume();
+                } else {
+                    Token token = tokenizer.consume();
+                    errors.add(ParseError.error(token,
+                                                String.format("Unexpected token: '%s'. Expected a valid quantifier.",
+                                                              token.getSource())));
                 }
             }
             return new Constant(value);

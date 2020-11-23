@@ -10,12 +10,11 @@ package parsii.eval;
 
 import java.util.List;
 
-
 /**
  * Defines a function which can be referenced and evaluated from within expressions.
  */
 public interface Function {
-    
+
     /**
      * Returns the number of expected arguments.
      * <p>
@@ -25,10 +24,10 @@ public interface Function {
      * This will essentially disable the check.
      *
      * @return the number of arguments expected by this function or a negative number to indicate that this
-     *         function accepts a variable number of arguments
+     * function accepts a variable number of arguments
      */
     int getNumberOfArguments();
-    
+
     /**
      * Executes the function with the given arguments.
      * <p>
@@ -37,11 +36,10 @@ public interface Function {
      *
      * @param args the arguments for this function. The length of the given list will exactly match
      *             <tt>getNumberOfArguments</tt>
-     *
      * @return the result of the function evaluated with the given arguments
      */
     double eval(List<Expression> args);
-    
+
     /**
      * A natural function returns the same output for the same input.
      * <p>

@@ -8,11 +8,13 @@
 
 package parsii.tokenizer;
 
-import parsii.tokenizer.Token.TokenType;
-
 import java.io.Reader;
-import java.util.*;
-
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import parsii.tokenizer.Token.TokenType;
 
 /**
  * Turns a stream of characters ({@link Reader} into a stream of {@link Token}, supporting lookahead.
@@ -40,74 +42,74 @@ import java.util.*;
  */
 public class Tokenizer extends Lookahead<Token> {
     /*
+     * Contains the underlying input
+     */
+    protected LookaheadReader input;
+    /*
+     * Decimal separator used when detecting decimal numbers
+     */
+    private char decimalSeparator = '.';
+    /*
+     * Decimal separator used as output (in the content) when a decimal separator was found
+     */
+    private char effectiveDecimalSeparator = '.';
+    /*
+     * Thousand grouping character. Is allowed in any number (at any position) but ignored (not added to the content)
+     */
+    private char groupingSeparator = '_';
+    /*
      * Scientific notation separator (e.g. 3e2 = 3*10**2 = 300)
      */
-    private final char                      scientificNotationSeparator          = 'e';
-    private final char                      alternateScientificNotationSeparator = 'E';
+    private char scientificNotationSeparator = 'e';
+    private char alternateScientificNotationSeparator = 'E';
     /*
      * Scientific notation separator used as output (in the content) when a scientific notation separator was found
      */
-    private final char                      effectiveScientificNotationSeparator = 'e';
+    private char effectiveScientificNotationSeparator = 'e';
+    /*
+     * Initiates a line comment
+     */
+    private String lineComment = "//";
+    /*
+     * Starts a block comment
+     */
+    private String blockCommentStart = "/*";
+    /*
+     * Ends a block comment
+     */
+    private String blockCommentEnd = "*/";
     /*
      * All supported brackets. For obvious reasons, several brackets like (( are treated as two symbols, rather than
      * operators like ** which will create one symbol
      */
-    private final char[]                    brackets                             = { '(', '[', '{', '}', ']', ')' };
+    private char[] brackets = {'(', '[', '{', '}', ']', ')'};
     /*
      * Determines if a single pipe (this: | ) will be treated as bracket. This could can be used like | a - b |
      * However || will be handled as symbol with two characters, as it is often used as "or".
      */
-    private final boolean                   treatSinglePipeAsBracket             = true;
+    private boolean treatSinglePipeAsBracket = true;
     /*
      * These characters are used to identify the start of a SPECIAL_ID like "$test"
      */
-    private final Set<Character>            specialIdStarters                    = new HashSet<>();
+    private Set<Character> specialIdStarters = new HashSet<>();
     /*
      * These characters are used to identify the end of a SPECIAL_ID like "test:"
      */
-    private final Set<Character>            specialIdTerminators                 = new HashSet<>();
+    private Set<Character> specialIdTerminators = new HashSet<>();
     /*
      * Contains keywords which will cause IDs to be converted to KEYWORD if the name matches
      */
-    private final Map<String, String>       keywords                             = new IdentityHashMap<>();
+    private Map<String, String> keywords = new IdentityHashMap<>();
+    /*
+     * Determines if keywords are case sensitive
+     */
+    private boolean keywordsCaseSensitive = false;
     /*
      * Contains all characters which are used to delimit a string, and also a second character which is used to
      * escape characters within this string. '\0' means no escaping.
      */
-    private final Map<Character, Character> stringDelimiters                     = new IdentityHashMap<>();
-    /*
-     * Contains the underlying input
-     */
-    protected     LookaheadReader           input;
-    /*
-     * Decimal separator used when detecting decimal numbers
-     */
-    private       char                      decimalSeparator                     = '.';
-    /*
-     * Decimal separator used as output (in the content) when a decimal separator was found
-     */
-    private       char                      effectiveDecimalSeparator            = '.';
-    /*
-     * Thousand grouping character. Is allowed in any number (at any position) but ignored (not added to the content)
-     */
-    private       char                      groupingSeparator                    = '_';
-    /*
-     * Initiates a line comment
-     */
-    private       String                    lineComment                          = "//";
-    /*
-     * Starts a block comment
-     */
-    private       String                    blockCommentStart                    = "/*";
-    /*
-     * Ends a block comment
-     */
-    private       String                    blockCommentEnd                      = "*/";
-    /*
-     * Determines if keywords are case sensitive
-     */
-    private       boolean                   keywordsCaseSensitive                = false;
-    
+    private Map<Character, Character> stringDelimiters = new IdentityHashMap<>();
+
     /**
      * Creates a new tokenizer for the given input
      *
@@ -117,96 +119,85 @@ public class Tokenizer extends Lookahead<Token> {
     public Tokenizer(Reader input) {
         this.input = new LookaheadReader(input);
         this.input.setProblemCollector(problemCollector);
-        
+
         // Setup default string handling
         addStringDelimiter('"', '\\');
         addStringDelimiter('\'', '\0');
     }
-    
-    /**
-     * Adds a new string delimiter character along with the character used to escape string within it.
-     *
-     * @param stringDelimiter the delimiter used to start and end string constants
-     * @param escapeCharacter the character used to start an escape sequence or \0 to indicate that escaping is
-     *                        not supported
-     */
-    public void addStringDelimiter(char stringDelimiter, char escapeCharacter) {
-        stringDelimiters.put(stringDelimiter, escapeCharacter);
+
+    @Override
+    public void setProblemCollector(List<ParseError> problemCollector) {
+        super.setProblemCollector(problemCollector);
+        this.input.setProblemCollector(problemCollector);
     }
-    
+
     @Override
     protected Token endOfInput() {
         return Token.createAndFill(Token.TokenType.EOI, input.current());
     }
-    
+
     @Override
     protected Token fetch() {
         // Fetch and ignore any whitespace
         while (input.current().isWhitepace()) {
             input.consume();
         }
-        
+
         // End of input reached? Pass end of input signal on...
         if (input.current().isEndOfInput()) {
             return null;
         }
-        
+
         // Handle (and ignore) line comments
         if (isAtStartOfLineComment(true)) {
             skipToEndOfLine();
             return fetch();
         }
-        
+
         // Handle (and ignore) block comments
         if (isAtStartOfBlockComment(true)) {
             skipBlockComment();
             return fetch();
         }
-        
+
         // A digit signals the start of a number
         if (isAtStartOfNumber()) {
             return fetchNumber();
         }
-        
+
         // A letter signals the start of an id
         if (isAtStartOfIdentifier()) {
             return fetchId();
         }
-        
+
         // A " or ' (or whatever string delimiters are used...) start a string constant
         if (stringDelimiters.containsKey(input.current().getValue())) {
             return fetchString();
         }
-        
+
         // Treat brackets as special symbols: (( will create two consecutive symbols but ** will create a single
         // symbol "**".
         if (isAtBracket(false)) {
             return Token.createAndFill(Token.TokenType.SYMBOL, input.consume());
         }
-        
+
         // Check if the current character starts a special ID
         if (isAtStartOfSpecialId()) {
             return fetchSpecialId();
         }
-        
+
         // Read all symbol characters and form a SYMBOL of it
         if (isSymbolCharacter(input.current())) {
             return fetchSymbol();
         }
-        
+
         problemCollector.add(ParseError.error(input.current(),
                                               String.format("Invalid character in input: '%s'",
                                                             input.current().getStringValue())));
         input.consume();
         return fetch();
     }
-    
-    @Override
-    public void setProblemCollector(List<ParseError> problemCollector) {
-        super.setProblemCollector(problemCollector);
-        this.input.setProblemCollector(problemCollector);
-    }
-    
+
     /**
      * Determines if the underlying input is looking at the start of a special id.
      * <p>
@@ -217,7 +208,7 @@ public class Tokenizer extends Lookahead<Token> {
     protected boolean isAtStartOfSpecialId() {
         return specialIdStarters.contains(input.current().getValue());
     }
-    
+
     /**
      * Determines if the underlying input is looking at the start of a number.
      * <p>
@@ -232,7 +223,7 @@ public class Tokenizer extends Lookahead<Token> {
                || input.current().is('-') && input.next().is('.') && input.next(2).isDigit()
                || input.current().is('.') && input.next().isDigit();
     }
-    
+
     /**
      * Determines if the underlying input is looking at a bracket.
      * <p>
@@ -240,7 +231,6 @@ public class Tokenizer extends Lookahead<Token> {
      * single '|' is also treated as bracket.
      *
      * @param inSymbol determines if we're already parsing a symbol or just trying to decide what the next token is
-     *
      * @return <tt>true</tt> if the current input is an opening or closing bracket
      */
     @SuppressWarnings("squid:S1067")
@@ -250,15 +240,14 @@ public class Tokenizer extends Lookahead<Token> {
                                                && input.current().is('|')
                                                && !input.next().is('|');
     }
-    
+
     /**
      * Checks if the next characters, starting from the current, match the given string.
      *
      * @param string  the string to check
      * @param consume determines if the matched string should be consumed immediately
-     *
      * @return <tt>true</tt> if the next characters of the input match the given string, <tt>false</tt>
-     *         otherwise
+     * otherwise
      */
     protected boolean canConsumeThisString(String string, boolean consume) {
         if (string == null) {
@@ -274,7 +263,7 @@ public class Tokenizer extends Lookahead<Token> {
         }
         return true;
     }
-    
+
     /**
      * Checks if the underlying input is looking at a start of line comment.
      * <p>
@@ -282,7 +271,6 @@ public class Tokenizer extends Lookahead<Token> {
      * <tt>consume</tt> is <tt>true</tt>.
      *
      * @param consume determines if the matched comment start should be consumed immediately
-     *
      * @return <tt>true</tt> if the next character(s) of the input start a line comment, <tt>false</tt> otherwise
      */
     protected boolean isAtStartOfLineComment(boolean consume) {
@@ -292,7 +280,7 @@ public class Tokenizer extends Lookahead<Token> {
             return false;
         }
     }
-    
+
     /**
      * Read everything upon (and including) the next line break
      */
@@ -301,7 +289,7 @@ public class Tokenizer extends Lookahead<Token> {
             input.consume();
         }
     }
-    
+
     /**
      * Checks if the underlying input is looking at a start of block comment
      * <p>
@@ -309,13 +297,12 @@ public class Tokenizer extends Lookahead<Token> {
      * is <tt>true</tt> .
      *
      * @param consume determines if the block comment starter is to be consumed if found or not
-     *
      * @return <tt>true</tt> if the next character(s) of the input start a block comment, <tt>false</tt> otherwise
      */
     protected boolean isAtStartOfBlockComment(boolean consume) {
         return canConsumeThisString(blockCommentStart, consume);
     }
-    
+
     /**
      * Checks if the underlying input is looking at a end of block comment
      * <p>
@@ -326,7 +313,7 @@ public class Tokenizer extends Lookahead<Token> {
     protected boolean isAtEndOfBlockComment() {
         return canConsumeThisString(blockCommentEnd, true);
     }
-    
+
     /**
      * Checks if we're looking at an end of block comment
      */
@@ -339,16 +326,16 @@ public class Tokenizer extends Lookahead<Token> {
         }
         problemCollector.add(ParseError.error(input.current(), "Premature end of block comment"));
     }
-    
+
     /**
      * Reads and returns a string constant.
      *
      * @return the parsed string constant a Token
      */
     protected Token fetchString() {
-        char  separator  = input.current().getValue();
-        char  escapeChar = stringDelimiters.get(input.current().getValue());
-        Token result     = Token.create(Token.TokenType.STRING, input.current());
+        char separator = input.current().getValue();
+        char escapeChar = stringDelimiters.get(input.current().getValue());
+        Token result = Token.create(Token.TokenType.STRING, input.current());
         result.addToTrigger(input.consume());
         while (!input.current().isNewLine() && !input.current().is(separator) && !input.current().isEndOfInput()) {
             if (escapeChar != '\0' && input.current().is(escapeChar)) {
@@ -369,7 +356,7 @@ public class Tokenizer extends Lookahead<Token> {
         }
         return result;
     }
-    
+
     /**
      * Evaluates an string escape like \n
      * <p>
@@ -379,7 +366,6 @@ public class Tokenizer extends Lookahead<Token> {
      * @param separator   the delimiter of this string constant
      * @param escapeChar  the escape character used
      * @param stringToken the resulting string constant
-     *
      * @return <tt>true</tt> if an escape was possible, <tt>false</tt> otherwise
      */
     protected boolean handleStringEscape(char separator, char escapeChar, Token stringToken) {
@@ -403,7 +389,7 @@ public class Tokenizer extends Lookahead<Token> {
             return false;
         }
     }
-    
+
     /**
      * Determines if the underlying input is looking at a valid character to start an identifier
      * <p>
@@ -414,7 +400,7 @@ public class Tokenizer extends Lookahead<Token> {
     protected boolean isAtStartOfIdentifier() {
         return input.current().isLetter();
     }
-    
+
     /**
      * Reads and returns an identifier
      *
@@ -437,12 +423,11 @@ public class Tokenizer extends Lookahead<Token> {
         }
         return handleKeywords(result);
     }
-    
+
     /**
      * Checks if the given identifier is a keyword and returns an appropriate Token
      *
      * @param idToken the identifier to check
-     *
      * @return a keyword Token if the given identifier was a keyword, the original Token otherwise
      */
     protected Token handleKeywords(Token idToken) {
@@ -454,26 +439,25 @@ public class Tokenizer extends Lookahead<Token> {
             keywordToken.setTrigger(keyword);
             keywordToken.setContent(idToken.getContents());
             keywordToken.setSource(idToken.getSource());
-    
+
             return keywordToken;
         }
-    
+
         return idToken;
     }
-    
+
     /**
      * Determines if the given Char is a valid identifier part.
      * <p>
      * By default, letters, digits and '_' are valid identifier parts.
      *
      * @param current the character to check
-     *
      * @return <tt>true</tt> if the given Char is a valid identifier part, <tt>false</tt> otherwise
      */
     protected boolean isIdentifierChar(Char current) {
         return current.isDigit() || current.isLetter() || current.is('_');
     }
-    
+
     /**
      * Reads and returns a special id.
      *
@@ -487,7 +471,7 @@ public class Tokenizer extends Lookahead<Token> {
         }
         return handleKeywords(result);
     }
-    
+
     /**
      * Reads and returns a symbol.
      * <p>
@@ -508,14 +492,13 @@ public class Tokenizer extends Lookahead<Token> {
         }
         return result;
     }
-    
+
     /**
      * Determines if the given Char is a symbol character.
      * <p>
      * By default these are all non-control characters, which don't match any other class (letter, digit, whitepsace)
      *
      * @param ch the character to check
-     *
      * @return <tt>true</tt> if the given character is a valid symbol character, <tt>false</tt> otherwise
      */
     @SuppressWarnings("squid:S1067")
@@ -523,12 +506,12 @@ public class Tokenizer extends Lookahead<Token> {
         if (ch.isEndOfInput() || ch.isDigit() || ch.isLetter() || ch.isWhitepace()) {
             return false;
         }
-    
+
         char c = ch.getValue();
         if (Character.isISOControl(c)) {
             return false;
         }
-    
+
         return !(isAtBracket(true)
                  || isAtStartOfBlockComment(false)
                  || isAtStartOfLineComment(false)
@@ -536,7 +519,7 @@ public class Tokenizer extends Lookahead<Token> {
                  || isAtStartOfIdentifier()
                  || stringDelimiters.containsKey(ch.getValue()));
     }
-    
+
     /**
      * Reads and returns a number.
      *
@@ -546,11 +529,11 @@ public class Tokenizer extends Lookahead<Token> {
         Token result = Token.create(Token.TokenType.INTEGER, input.current());
         result.addToContent(input.consume());
         while (input.current().isDigit()
-               || input.current().is(decimalSeparator)
-               || (input.current().is(groupingSeparator) && input.next().isDigit())
-               || ((input.current().is(scientificNotationSeparator)
-                    || input.current().is(alternateScientificNotationSeparator))
-                   && (input.next().isDigit() || input.next().is('+') || input.next().is('-')))) {
+            || input.current().is(decimalSeparator)
+            || (input.current().is(groupingSeparator) && input.next().isDigit())
+            || ((input.current().is(scientificNotationSeparator)
+               || input.current().is(alternateScientificNotationSeparator))
+               && (input.next().isDigit() || input.next().is('+') || input.next().is('-')))) {
             if (input.current().is(groupingSeparator)) {
                 result.addToSource(input.consume());
             } else if (input.current().is(decimalSeparator)) {
@@ -564,7 +547,7 @@ public class Tokenizer extends Lookahead<Token> {
                 }
                 result.addToSource(input.consume());
             } else if (input.current().is(scientificNotationSeparator)
-                       || input.current().is(alternateScientificNotationSeparator)) {
+                || input.current().is(alternateScientificNotationSeparator)) {
                 if (result.is(TokenType.SCIENTIFIC_DECIMAL)) {
                     problemCollector.add(ParseError.error(input.current(), "Unexpected scientific notation separators"));
                 } else {
@@ -573,7 +556,7 @@ public class Tokenizer extends Lookahead<Token> {
                     scientificDecimalToken.setSource(result.getSource() + effectiveScientificNotationSeparator);
                     result = scientificDecimalToken;
                     input.consume();
-                    if (input.current().is('+') || input.current().is('-')) {
+                    if (input.current().is('+') || input.current().is('-')){
                         result.addToContent(input.consume());
                     }
                 }
@@ -581,10 +564,10 @@ public class Tokenizer extends Lookahead<Token> {
                 result.addToContent(input.consume());
             }
         }
-    
+
         return result;
     }
-    
+
     /**
      * Determines if keywords are case sensitive.
      * <p>
@@ -595,7 +578,7 @@ public class Tokenizer extends Lookahead<Token> {
     public boolean isKeywordsCaseSensitive() {
         return keywordsCaseSensitive;
     }
-    
+
     /**
      * Sets the case sensitiveness of keywords.
      * <p>
@@ -608,7 +591,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setKeywordsCaseSensitive(boolean keywordsCaseSensitive) {
         this.keywordsCaseSensitive = keywordsCaseSensitive;
     }
-    
+
     /**
      * Adds a keyword which is now being recognized by the tokenizer
      * <p>
@@ -620,7 +603,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void addKeyword(String keyword) {
         keywords.put(keywordsCaseSensitive ? keyword.intern() : keyword.toLowerCase().intern(), keyword);
     }
-    
+
     /**
      * Adds character as a special id starter. The given character must be followed by a valid id to be recognized
      * as SPECIAL_ID.
@@ -630,7 +613,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void addSpecialIdStarter(char character) {
         specialIdStarters.add(character);
     }
-    
+
     /**
      * Adds character as a special id terminator. The given character can be placed at the end of an id
      * to be recognized as SPECIAL_ID.
@@ -640,7 +623,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void addSpecialIdTerminator(char character) {
         specialIdTerminators.add(character);
     }
-    
+
     /**
      * Removes all previously registered string delimiters.
      * <p>
@@ -650,7 +633,18 @@ public class Tokenizer extends Lookahead<Token> {
     public void clearStringDelimiters() {
         stringDelimiters.clear();
     }
-    
+
+    /**
+     * Adds a new string delimiter character along with the character used to escape string within it.
+     *
+     * @param stringDelimiter the delimiter used to start and end string constants
+     * @param escapeCharacter the character used to start an escape sequence or \0 to indicate that escaping is
+     *                        not supported
+     */
+    public void addStringDelimiter(char stringDelimiter, char escapeCharacter) {
+        stringDelimiters.put(stringDelimiter, escapeCharacter);
+    }
+
     /**
      * Boilerplate method for adding a string delimiter which does not support escape sequences.
      *
@@ -659,7 +653,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void addUnescapedStringDelimiter(char stringDelimiter) {
         stringDelimiters.put(stringDelimiter, '\0');
     }
-    
+
     /**
      * Returns the decimal separator used in decimal numbers
      * <p>
@@ -670,7 +664,7 @@ public class Tokenizer extends Lookahead<Token> {
     public char getDecimalSeparator() {
         return decimalSeparator;
     }
-    
+
     /**
      * Sets the character which is recognized as decimal separator.
      *
@@ -679,7 +673,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setDecimalSeparator(char decimalSeparator) {
         this.decimalSeparator = decimalSeparator;
     }
-    
+
     /**
      * Returns the decimal separator used in the content of DECIMAL tokens.
      * <p>
@@ -692,7 +686,7 @@ public class Tokenizer extends Lookahead<Token> {
     public char getEffectiveDecimalSeparator() {
         return effectiveDecimalSeparator;
     }
-    
+
     /**
      * Sets the decimal separator used in the content of DECIMAL tokens. This can differ from the character set via
      * {@link #setDecimalSeparator(char)} which is used to recognize decimal numbers. Therefore language dependent
@@ -703,7 +697,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setEffectiveDecimalSeparator(char effectiveDecimalSeparator) {
         this.effectiveDecimalSeparator = effectiveDecimalSeparator;
     }
-    
+
     /**
      * Returns the grouping separator which can be used in numbers for group digits (e.g. in thousands).
      * <p>
@@ -714,7 +708,7 @@ public class Tokenizer extends Lookahead<Token> {
     public char getGroupingSeparator() {
         return groupingSeparator;
     }
-    
+
     /**
      * Sets the grouping separator accepting in numbers.
      *
@@ -723,7 +717,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setGroupingSeparator(char groupingSeparator) {
         this.groupingSeparator = groupingSeparator;
     }
-    
+
     /**
      * Returns the string which starts a line comment.
      * <p>
@@ -734,7 +728,7 @@ public class Tokenizer extends Lookahead<Token> {
     public String getLineComment() {
         return lineComment;
     }
-    
+
     /**
      * Sets the string which stats a line comment.
      *
@@ -743,7 +737,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setLineComment(String lineComment) {
         this.lineComment = lineComment;
     }
-    
+
     /**
      * Returns the string which starts a block comment.
      * <p>
@@ -754,7 +748,7 @@ public class Tokenizer extends Lookahead<Token> {
     public String getBlockCommentStart() {
         return blockCommentStart;
     }
-    
+
     /**
      * Sets the string which stats a block comment.
      *
@@ -763,7 +757,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setBlockCommentStart(String blockCommentStart) {
         this.blockCommentStart = blockCommentStart;
     }
-    
+
     /**
      * Returns the string which ends a block comment.
      * <p>
@@ -774,7 +768,7 @@ public class Tokenizer extends Lookahead<Token> {
     public String getBlockCommentEnd() {
         return blockCommentEnd;
     }
-    
+
     /**
      * Sets the string which ends a block comment.
      *
@@ -783,7 +777,7 @@ public class Tokenizer extends Lookahead<Token> {
     public void setBlockCommentEnd(String blockCommentEnd) {
         this.blockCommentEnd = blockCommentEnd;
     }
-    
+
     @Override
     public String toString() {
         // We check the internal buffer first to that no further parsing is triggered by calling toString()
@@ -796,7 +790,7 @@ public class Tokenizer extends Lookahead<Token> {
         }
         return "Current: " + current().toString() + ", Next: " + next().toString();
     }
-    
+
     /**
      * Boilerplate method for {@code current().isNotEnd()}
      *
@@ -805,7 +799,7 @@ public class Tokenizer extends Lookahead<Token> {
     public boolean more() {
         return current().isNotEnd();
     }
-    
+
     /**
      * Boilerplate method for {@code current().isEnd()}
      *
@@ -814,36 +808,7 @@ public class Tokenizer extends Lookahead<Token> {
     public boolean atEnd() {
         return current().isEnd();
     }
-    
-    /**
-     * Adds a warning to the internal problem collector.
-     * <p>
-     * A warning indicates an anomaly which might lead to an error but still, the parser can continue to complete its
-     * work.
-     *
-     * @param pos        the position of the warning. Note that {@link Token} implements {@link Position}.
-     *                   Therefore the current token is often a good choice for this parameter.
-     * @param message    the message to describe the earning. Can contain formatting parameters like %s or %d as
-     *                   defined by {@link String#format(String, Object...)}
-     * @param parameters Contains the parameters used to format the given message
-     */
-    public void addWarning(Position pos, String message, Object... parameters) {
-        getProblemCollector().add(ParseError.warning(pos, String.format(message, parameters)));
-    }
-    
-    /**
-     * Consumes the current token, expecting it to be as <tt>SYMBOL</tt> with the given content
-     *
-     * @param symbol the expected trigger of the current token
-     */
-    public void consumeExpectedSymbol(String symbol) {
-        if (current().matches(Token.TokenType.SYMBOL, symbol)) {
-            consume();
-        } else {
-            addError(current(), "Unexpected token: '%s'. Expected: '%s'", current().getSource(), symbol);
-        }
-    }
-    
+
     /**
      * Adds a parse error to the internal problem collector.
      * <p>
@@ -860,7 +825,36 @@ public class Tokenizer extends Lookahead<Token> {
     public void addError(Position pos, String message, Object... parameters) {
         getProblemCollector().add(ParseError.error(pos, String.format(message, parameters)));
     }
-    
+
+    /**
+     * Adds a warning to the internal problem collector.
+     * <p>
+     * A warning indicates an anomaly which might lead to an error but still, the parser can continue to complete its
+     * work.
+     *
+     * @param pos        the position of the warning. Note that {@link Token} implements {@link Position}.
+     *                   Therefore the current token is often a good choice for this parameter.
+     * @param message    the message to describe the earning. Can contain formatting parameters like %s or %d as
+     *                   defined by {@link String#format(String, Object...)}
+     * @param parameters Contains the parameters used to format the given message
+     */
+    public void addWarning(Position pos, String message, Object... parameters) {
+        getProblemCollector().add(ParseError.warning(pos, String.format(message, parameters)));
+    }
+
+    /**
+     * Consumes the current token, expecting it to be as <tt>SYMBOL</tt> with the given content
+     *
+     * @param symbol the expected trigger of the current token
+     */
+    public void consumeExpectedSymbol(String symbol) {
+        if (current().matches(Token.TokenType.SYMBOL, symbol)) {
+            consume();
+        } else {
+            addError(current(), "Unexpected token: '%s'. Expected: '%s'", current().getSource(), symbol);
+        }
+    }
+
     /**
      * Consumes the current token, expecting it to be as <tt>KEYWORD</tt> with the given content
      *
@@ -873,7 +867,7 @@ public class Tokenizer extends Lookahead<Token> {
             addError(current(), "Unexpected token: '%s'. Expected: '%s'", current().getSource(), keyword);
         }
     }
-    
+
     /**
      * Throws a {@link ParseException} if an error or warning occurred while parsing the input
      *
@@ -884,7 +878,7 @@ public class Tokenizer extends Lookahead<Token> {
             throw ParseException.create(getProblemCollector());
         }
     }
-    
+
     /**
      * Throws a {@link ParseException} if an error occurred while parsing the input.
      * <p>

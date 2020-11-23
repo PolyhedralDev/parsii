@@ -10,7 +10,6 @@ package parsii.tokenizer;
 
 import java.util.List;
 
-
 /**
  * Used to signal that processing an input failed.
  * <p>
@@ -18,21 +17,20 @@ import java.util.List;
  * of what is wrong with the input provided by the user.
  */
 public class ParseException extends Exception {
-    
+
     private static final long serialVersionUID = -5618855459424320517L;
-    
+
     private final transient List<ParseError> errors;
-    
+
     private ParseException(String message, List<ParseError> errors) {
         super(message);
         this.errors = errors;
     }
-    
+
     /**
      * Creates a new exception based on the list of errors.
      *
      * @param errors the errors which occurred while processing the user input
-     *
      * @return a new ParseException which can be thrown
      */
     public static ParseException create(List<ParseError> errors) {
@@ -46,7 +44,7 @@ public class ParseException extends Exception {
             return new ParseException("An unknown error occured", errors);
         }
     }
-    
+
     /**
      * Provides a list of all errors and warnings which occurred
      *
@@ -55,7 +53,7 @@ public class ParseException extends Exception {
     public List<ParseError> getErrors() {
         return errors;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -65,7 +63,7 @@ public class ParseException extends Exception {
             }
             sb.append(error);
         }
-        
+
         return sb.toString();
     }
 }
