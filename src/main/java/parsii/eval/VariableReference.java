@@ -13,7 +13,7 @@ package parsii.eval;
  */
 public class VariableReference implements Expression {
 
-    private Variable var;
+    private final Variable var;
 
     /**
      * Creates a new reference to the given variable.
@@ -25,14 +25,15 @@ public class VariableReference implements Expression {
     }
 
     @Override
+    public String toString() {
+        return var.getName();
+    }
+
+    @Override
     public double evaluate() {
         return var.getValue();
     }
 
-    @Override
-    public String toString() {
-        return var.getName();
-    }
 
     @Override
     public boolean isConstant() {
@@ -41,7 +42,7 @@ public class VariableReference implements Expression {
 
     @Override
     public Expression simplify() {
-        if (isConstant()) {
+        if(isConstant()) {
             return new Constant(evaluate());
         }
         return this;

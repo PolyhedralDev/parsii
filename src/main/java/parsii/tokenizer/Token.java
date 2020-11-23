@@ -38,13 +38,7 @@ package parsii.tokenizer;
  */
 public class Token implements Position {
 
-    /**
-     * Contains the different token types supported by this class.
-     */
-    public enum TokenType {
-        ID, SPECIAL_ID, STRING, DECIMAL, SCIENTIFIC_DECIMAL, INTEGER, SYMBOL, KEYWORD, EOI
-    }
-
+    protected int pos;
     private TokenType type;
     private String trigger = "";
     private String internTrigger = null;
@@ -52,7 +46,6 @@ public class Token implements Position {
     private String source = "";
 
     private int line;
-    protected int pos;
 
     /*
      * Use one of the static factory methods
@@ -152,45 +145,6 @@ public class Token implements Position {
         return this;
     }
 
-    /**
-     * Returns the string or character which further specifies this token.
-     *
-     * @return a first character or characters which where used to determine the token type
-     */
-    public String getTrigger() {
-        if (internTrigger == null) {
-            internTrigger = trigger.intern();
-        }
-        return internTrigger;
-    }
-
-    /**
-     * Returns the basic classification of this token
-     *
-     * @return the type of this toke
-     */
-    public TokenType getType() {
-        return type;
-    }
-
-    /**
-     * Returns the effective content of this token
-     *
-     * @return the content of this token
-     */
-    public String getContents() {
-        return contents;
-    }
-
-    /**
-     * Returns the complete source string consumed while parsing this token
-     *
-     * @return all characters consumed while parsing this token
-     */
-    public String getSource() {
-        return source;
-    }
-
     @Override
     public int getLine() {
         return line;
@@ -202,18 +156,6 @@ public class Token implements Position {
     }
 
     /**
-     * Externally sets the trigger used for this token.
-     * <p>
-     * This will neither change the content nor the source of this token.
-     *
-     * @param trigger the new trigger of this token
-     */
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
-        this.internTrigger = null;
-    }
-
-    /**
      * Externally sets the content used for this token.
      * <p>
      * This will neither change the trigger nor the source of this token.
@@ -222,17 +164,6 @@ public class Token implements Position {
      */
     public void setContent(String content) {
         this.contents = content;
-    }
-
-    /**
-     * Externally sets the source used for this token.
-     * <p>
-     * This will neither change the trigger nor the content of this token.
-     *
-     * @param source the new source of this token
-     */
-    public void setSource(String source) {
-        this.source = source;
     }
 
     /**
@@ -254,25 +185,6 @@ public class Token implements Position {
     }
 
     /**
-     * Determines if this token has the given type and trigger.
-     *
-     * @param type    the expected type
-     * @param trigger the expected trigger
-     * @return <tt>true</tt> if this token matches the given type and trigger, <tt>false</tt> otherwise
-     */
-    @SuppressWarnings("squid:S1698")
-    public boolean matches(TokenType type, String trigger) {
-        if (!is(type)) {
-            return false;
-        }
-        if (trigger == null) {
-            throw new IllegalArgumentException("trigger must not be null");
-        }
-
-        return getTrigger() == trigger.intern();
-    }
-
-    /**
      * Determines if this token was triggered by one of the given triggers.
      *
      * @param triggers a list of possible triggers to compare to
@@ -280,16 +192,40 @@ public class Token implements Position {
      */
     @SuppressWarnings("squid:S1698")
     public boolean wasTriggeredBy(String... triggers) {
-        if (triggers.length == 0) {
+        if(triggers.length == 0) {
             return false;
         }
-        for (String aTrigger : triggers) {
-            if (aTrigger != null && aTrigger.intern() == getTrigger()) {
+        for(String aTrigger : triggers) {
+            if(aTrigger != null && aTrigger.intern().equals(getTrigger())) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Returns the string or character which further specifies this token.
+     *
+     * @return a first character or characters which where used to determine the token type
+     */
+    public String getTrigger() {
+        if(internTrigger == null) {
+            internTrigger = trigger.intern();
+        }
+        return internTrigger;
+    }
+
+    /**
+     * Externally sets the trigger used for this token.
+     * <p>
+     * This will neither change the content nor the source of this token.
+     *
+     * @param trigger the new trigger of this token
+     */
+    public void setTrigger(String trigger) {
+        this.trigger = trigger;
+        this.internTrigger = null;
     }
 
     /**
@@ -300,10 +236,40 @@ public class Token implements Position {
      * <tt>false</tt> otherwise
      */
     public boolean hasContent(String content) {
-        if (content == null) {
+        if(content == null) {
             throw new IllegalArgumentException("content must not be null");
         }
         return content.equalsIgnoreCase(getContents());
+    }
+
+    /**
+     * Returns the effective content of this token
+     *
+     * @return the content of this token
+     */
+    public String getContents() {
+        return contents;
+    }
+
+    /**
+     * Determines if this token is a symbol.
+     * <p>
+     * If a list of <tt>symbols</tt> is given, this method checks that the trigger matches one of them.
+     *
+     * @param symbols the symbols to check for. If the list es empty, only the token type is checked.
+     * @return <tt>true</tt> if this token is a symbol and matches one of the given <tt>symbols</tt> if the list
+     * is not empty.
+     */
+    public boolean isSymbol(String... symbols) {
+        if(symbols.length == 0) {
+            return is(TokenType.SYMBOL);
+        }
+        for(String symbol : symbols) {
+            if(matches(TokenType.SYMBOL, symbol)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -317,24 +283,22 @@ public class Token implements Position {
     }
 
     /**
-     * Determines if this token is a symbol.
-     * <p>
-     * If a list of <tt>symbols</tt> is given, this method checks that the trigger matches one of them.
+     * Determines if this token has the given type and trigger.
      *
-     * @param symbols the symbols to check for. If the list es empty, only the token type is checked.
-     * @return <tt>true</tt> if this token is a symbol and matches one of the given <tt>symbols</tt> if the list
-     * is not empty.
+     * @param type    the expected type
+     * @param trigger the expected trigger
+     * @return <tt>true</tt> if this token matches the given type and trigger, <tt>false</tt> otherwise
      */
-    public boolean isSymbol(String... symbols) {
-        if (symbols.length == 0) {
-            return is(TokenType.SYMBOL);
+    @SuppressWarnings("squid:S1698")
+    public boolean matches(TokenType type, String trigger) {
+        if(!is(type)) {
+            return false;
         }
-        for (String symbol : symbols) {
-            if (matches(TokenType.SYMBOL, symbol)) {
-                return true;
-            }
+        if(trigger == null) {
+            throw new IllegalArgumentException("trigger must not be null");
         }
-        return false;
+
+        return getTrigger().equals(trigger.intern());
     }
 
     /**
@@ -347,11 +311,11 @@ public class Token implements Position {
      * is not empty.
      */
     public boolean isKeyword(String... keywords) {
-        if (keywords.length == 0) {
+        if(keywords.length == 0) {
             return is(TokenType.KEYWORD);
         }
-        for (String keyword : keywords) {
-            if (matches(TokenType.KEYWORD, keyword)) {
+        for(String keyword : keywords) {
+            if(matches(TokenType.KEYWORD, keyword)) {
                 return true;
             }
         }
@@ -368,11 +332,11 @@ public class Token implements Position {
      * is not empty.
      */
     public boolean isIdentifier(String... values) {
-        if (values.length == 0) {
+        if(values.length == 0) {
             return is(TokenType.ID);
         }
-        for (String value : values) {
-            if (matches(TokenType.ID, value)) {
+        for(String value : values) {
+            if(matches(TokenType.ID, value)) {
                 return true;
             }
         }
@@ -389,11 +353,11 @@ public class Token implements Position {
      * if the list is not empty.
      */
     public boolean isSpecialIdentifier(String... triggers) {
-        if (triggers.length == 0) {
+        if(triggers.length == 0) {
             return is(TokenType.SPECIAL_ID);
         }
-        for (String possibleTrigger : triggers) {
-            if (matches(TokenType.SPECIAL_ID, possibleTrigger)) {
+        for(String possibleTrigger : triggers) {
+            if(matches(TokenType.SPECIAL_ID, possibleTrigger)) {
                 return true;
             }
         }
@@ -411,18 +375,27 @@ public class Token implements Position {
      * If <tt>contents</tt> is not empty, the content must also match one of the elements.
      */
     public boolean isSpecialIdentifierWithContent(String trigger, String... contents) {
-        if (!matches(TokenType.SPECIAL_ID, trigger)) {
+        if(!matches(TokenType.SPECIAL_ID, trigger)) {
             return false;
         }
-        if (contents.length == 0) {
+        if(contents.length == 0) {
             return true;
         }
-        for (String content : contents) {
-            if (content != null && content.equals(getContents())) {
+        for(String content : contents) {
+            if(content != null && content.equals(getContents())) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Determines if this token is an integer or decimal number.
+     *
+     * @return <tt>true</tt> if this token is an integer or decimal number, <tt>false</tt> otherwise
+     */
+    public boolean isNumber() {
+        return isInteger() || isDecimal() || isScientificDecimal();
     }
 
     /**
@@ -453,15 +426,6 @@ public class Token implements Position {
     }
 
     /**
-     * Determines if this token is an integer or decimal number.
-     *
-     * @return <tt>true</tt> if this token is an integer or decimal number, <tt>false</tt> otherwise
-     */
-    public boolean isNumber() {
-        return isInteger() || isDecimal() || isScientificDecimal();
-    }
-
-    /**
      * Determines if this token is a string constant
      *
      * @return <tt>true</tt> if this token is a string constant, <tt>false</tt> otherwise
@@ -473,5 +437,49 @@ public class Token implements Position {
     @Override
     public String toString() {
         return getType().toString() + ":" + getSource() + " (" + line + ":" + pos + ")";
+    }
+
+    /**
+     * Returns the basic classification of this token
+     *
+     * @return the type of this toke
+     */
+    public TokenType getType() {
+        return type;
+    }
+
+    /**
+     * Returns the complete source string consumed while parsing this token
+     *
+     * @return all characters consumed while parsing this token
+     */
+    public String getSource() {
+        return source;
+    }
+
+    /**
+     * Externally sets the source used for this token.
+     * <p>
+     * This will neither change the trigger nor the content of this token.
+     *
+     * @param source the new source of this token
+     */
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    /**
+     * Contains the different token types supported by this class.
+     */
+    public enum TokenType {
+        ID,
+        SPECIAL_ID,
+        STRING,
+        DECIMAL,
+        SCIENTIFIC_DECIMAL,
+        INTEGER,
+        SYMBOL,
+        KEYWORD,
+        EOI
     }
 }

@@ -19,8 +19,8 @@ package parsii.eval;
  */
 public class Variable {
 
+    private final String name;
     private double value = 0d;
-    private String name;
     private boolean constant = false;
 
     /**
@@ -33,19 +33,6 @@ public class Variable {
      */
     protected Variable(String name) {
         this.name = name;
-    }
-
-    /**
-     * Sets the value if the variable.
-     *
-     * @param value the new value of the variable
-     * @throws IllegalStateException if the variable is constant
-     */
-    public void setValue(double value) {
-        if (constant) {
-            throw new IllegalStateException(String.format("%s is constant!", name));
-        }
-        this.value = value;
     }
 
     /**
@@ -65,6 +52,30 @@ public class Variable {
      */
     public double getValue() {
         return value;
+    }
+
+    /**
+     * Sets the value if the variable.
+     *
+     * @param value the new value of the variable
+     * @throws IllegalStateException if the variable is constant
+     */
+    public void setValue(double value) {
+        if(constant) {
+            throw new IllegalStateException(String.format("%s is constant!", name));
+        }
+        this.value = value;
+    }
+
+    /**
+     * Sets the value and returns <tt>this</tt>.
+     *
+     * @param value the new value of this variable
+     * @return <tt>this</tt> for fluent method calls
+     */
+    public Variable withValue(double value) {
+        setValue(value);
+        return this;
     }
 
     @Override
@@ -88,16 +99,5 @@ public class Variable {
      */
     public boolean isConstant() {
         return constant;
-    }
-
-    /**
-     * Sets the value and returns <tt>this</tt>.
-     *
-     * @param value the new value of this variable
-     * @return <tt>this</tt> for fluent method calls
-     */
-    public Variable withValue(double value) {
-        setValue(value);
-        return this;
     }
 }

@@ -12,14 +12,12 @@ package parsii.eval;
  * Represents a constant numeric expression.
  */
 public class Constant implements Expression {
-    private static final long serialVersionUID = 7461494011371773146L;
-
-    private double value;
-
     /**
      * Used as dummy expression by the parser if an error occurs while parsing.
      */
     public static final Constant EMPTY = new Constant(Double.NaN);
+    private static final long serialVersionUID = 7461494011371773146L;
+    private final double value;
 
     public Constant(double value) {
         this.value = value;

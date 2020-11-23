@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 /**
  * Contains a mapping of names to variables.
  * <p>
@@ -28,11 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * shared by two expression or kept separate, if required.
  */
 public class Scope {
+    private static Scope root;
     private Scope parent;
     private boolean autocreateVariables = true;
-    private Map<String, Variable> context = new ConcurrentHashMap<>();
-
-    private static Scope root;
+    private final Map<String, Variable> context = new ConcurrentHashMap<>();
 
     /**
      * Creates a new empty scope.
@@ -47,7 +47,7 @@ public class Scope {
     }
 
     private Scope(boolean skipParent) {
-        if (!skipParent) {
+        if(!skipParent) {
             this.parent = getRootScope();
         }
     }
@@ -56,8 +56,8 @@ public class Scope {
      * Creates the internal root scope which contains eternal constants ;-)
      */
     private static Scope getRootScope() {
-        if (root == null) {
-            synchronized (Scope.class) {
+        if(root == null) {
+            synchronized(Scope.class) {
                 root = new Scope(true);
                 root.create("pi").makeConstant(FastMath.PI);
                 root.create("euler").makeConstant(FastMath.E);
@@ -94,13 +94,32 @@ public class Scope {
      * @return the instance itself for fluent method calls
      */
     public Scope withParent(Scope parent) {
-        if (parent == null) {
+        if(parent == null) {
             this.parent = getRootScope();
         } else {
             this.parent = parent;
         }
 
         return this;
+    }
+
+    /**
+     * Searches or creates a variable in this scope.
+     * <p>
+     * Tries to find a variable with the given name in this scope. If no variable with the given name is found,
+     * the parent scope is not checked, but a new variable is created.
+     *
+     * @param name the variable to search or create
+     * @return a variable with the given name from the local scope
+     */
+    public Variable create(String name) {
+        if(context.containsKey(name)) {
+            return context.get(name);
+        }
+        Variable result = new Variable(name);
+        context.put(name, result);
+
+        return result;
     }
 
     /**
@@ -112,10 +131,10 @@ public class Scope {
      * @return the variable with the given name or <tt>null</tt> if no such variable was found
      */
     public Variable find(String name) {
-        if (context.containsKey(name)) {
+        if(context.containsKey(name)) {
             return context.get(name);
         }
-        if (parent != null) {
+        if(parent != null) {
             return parent.find(name);
         }
         return null;
@@ -133,33 +152,14 @@ public class Scope {
      */
     public Variable getVariable(String name) {
         Variable result = find(name);
-        if (result != null) {
+        if(result != null) {
             return result;
         }
-        if (!autocreateVariables) {
+        if(!autocreateVariables) {
             throw new IllegalArgumentException();
         }
 
         return create(name);
-    }
-
-    /**
-     * Searches or creates a variable in this scope.
-     * <p>
-     * Tries to find a variable with the given name in this scope. If no variable with the given name is found,
-     * the parent scope is not checked, but a new variable is created.
-     *
-     * @param name the variable to search or create
-     * @return a variable with the given name from the local scope
-     */
-    public Variable create(String name) {
-        if (context.containsKey(name)) {
-            return context.get(name);
-        }
-        Variable result = new Variable(name);
-        context.put(name, result);
-
-        return result;
     }
 
     /**
@@ -171,7 +171,7 @@ public class Scope {
      * @return the removed variable or <tt>null</tt> if no variable with the given name existed
      */
     public Variable remove(String name) {
-        if (context.containsKey(name)) {
+        if(context.containsKey(name)) {
             return context.remove(name);
         } else {
             return null;
@@ -193,7 +193,7 @@ public class Scope {
      * @return a set of all known variable names
      */
     public Set<String> getNames() {
-        if (parent == null) {
+        if(parent == null) {
             return getLocalNames();
         }
         Set<String> result = new TreeSet<>();
@@ -217,7 +217,7 @@ public class Scope {
      * @return a collection of all known variables
      */
     public Collection<Variable> getVariables() {
-        if (parent == null) {
+        if(parent == null) {
             return getLocalVariables();
         }
         List<Variable> result = new ArrayList<>();

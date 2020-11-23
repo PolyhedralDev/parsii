@@ -11,6 +11,7 @@ package parsii.tokenizer;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Abstract data structure for providing streams of items with a lookahead.
  * <p>
@@ -44,18 +45,6 @@ public abstract class Lookahead<T> {
     protected T endOfInputIndicator;
 
     /**
-     * Returns the item the stream is currently pointing at.
-     * <p>
-     * This method does not change the internal state. Therefore it can be called several times and will always
-     * return the same result.
-     *
-     * @return the item the stream is currently pointing at.
-     */
-    public T current() {
-        return next(0);
-    }
-
-    /**
      * Returns the next item after the current one in the stream.
      * <p>
      * This method does not change the internal state. Therefore it can be called several times and will always
@@ -65,6 +54,18 @@ public abstract class Lookahead<T> {
      */
     public T next() {
         return next(1);
+    }
+
+    /**
+     * Returns the item the stream is currently pointing at.
+     * <p>
+     * This method does not change the internal state. Therefore it can be called several times and will always
+     * return the same result.
+     *
+     * @return the item the stream is currently pointing at.
+     */
+    public T current() {
+        return next(0);
     }
 
     /**
@@ -80,19 +81,19 @@ public abstract class Lookahead<T> {
      * @return the n-th item in the stream
      */
     public T next(int offset) {
-        if (offset < 0) {
+        if(offset < 0) {
             throw new IllegalArgumentException("offset < 0");
         }
-        while (itemBuffer.size() <= offset && !endReached) {
+        while(itemBuffer.size() <= offset && !endReached) {
             T item = fetch();
-            if (item != null) {
+            if(item != null) {
                 itemBuffer.add(item);
             } else {
                 endReached = true;
             }
         }
-        if (offset >= itemBuffer.size()) {
-            if (endOfInputIndicator == null) {
+        if(offset >= itemBuffer.size()) {
+            if(endOfInputIndicator == null) {
                 endOfInputIndicator = endOfInput();
             }
             return endOfInputIndicator;
@@ -111,13 +112,6 @@ public abstract class Lookahead<T> {
     protected abstract T endOfInput();
 
     /**
-     * Fetches the next item from the stream.
-     *
-     * @return the next item in the stream or <tt>null</tt> to indicate that the end was reached
-     */
-    protected abstract T fetch();
-
-    /**
      * Removes and returns the current item from the stream.
      * <p>After this method was called, all calls to {@link #current()} will then return the item, which
      * was previously returned by {@link #next()}
@@ -131,6 +125,13 @@ public abstract class Lookahead<T> {
     }
 
     /**
+     * Fetches the next item from the stream.
+     *
+     * @return the next item in the stream or <tt>null</tt> to indicate that the end was reached
+     */
+    protected abstract T fetch();
+
+    /**
      * Consumes (removes) <tt>numberOfItems</tt> at once.
      * <p>
      * Removes the given number of items from the stream.
@@ -138,18 +139,18 @@ public abstract class Lookahead<T> {
      * @param numberOfItems the number of items to remove
      */
     public void consume(int numberOfItems) {
-        if (numberOfItems < 0) {
+        if(numberOfItems < 0) {
             throw new IllegalArgumentException("numberOfItems < 0");
         }
-        while (numberOfItems-- > 0) {
-            if (!itemBuffer.isEmpty()) {
+        while(numberOfItems-- > 0) {
+            if(!itemBuffer.isEmpty()) {
                 itemBuffer.remove(0);
             } else {
-                if (endReached) {
+                if(endReached) {
                     return;
                 }
                 T item = fetch();
-                if (item == null) {
+                if(item == null) {
                     endReached = true;
                 }
             }

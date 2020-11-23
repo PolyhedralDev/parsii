@@ -25,11 +25,11 @@ public abstract class BinaryFunction implements Function {
     @Override
     public double eval(List<Expression> args) {
         double a = args.get(0).evaluate();
-        if (Double.isNaN(a)) {
+        if(Double.isNaN(a)) {
             return a;
         }
         double b = args.get(1).evaluate();
-        if (Double.isNaN(b)) {
+        if(Double.isNaN(b)) {
             return b;
         }
         return eval(a, b);

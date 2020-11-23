@@ -12,11 +12,13 @@ import net.jafama.FastMath;
 
 import java.util.List;
 
+
 /**
  * Contains a set of predefined standard functions.
  * <p>
  * Provides mostly functions defined by {@link FastMath}
  */
+@SuppressWarnings("SuspiciousNameCombination")
 public class Functions {
 
     /**
@@ -180,6 +182,27 @@ public class Functions {
     };
 
     /**
+     * Provides access to {@link FastMath#cbrt(double)}
+     * (cube root)
+     */
+    public static final Function CBRT = new UnaryFunction() {
+        @Override
+        protected double eval(double a) {
+            return FastMath.cbrt(a);
+        }
+    };
+
+    /**
+     * Provides access to the nth root of a value.
+     */
+    public static final Function ROOT = new BinaryFunction() {
+        @Override
+        protected double eval(double a, double b) {
+            return FastMath.pow(FastMath.E, FastMath.log(a) / b);
+        }
+    };
+
+    /**
      * Provides access to {@link FastMath#exp(double)}
      */
     public static final Function EXP = new UnaryFunction() {
@@ -270,6 +293,116 @@ public class Functions {
     };
 
     /**
+     * Provides access to a sigmoid function.
+     */
+    public static final Function SIGMOID = new BinaryFunction() {
+        @Override
+        protected double eval(double x, double a) {
+            return 1 / (FastMath.exp(-1 * x * a));
+        }
+    };
+
+    /**
+     * Provides access to the AND operator
+     */
+    public static final Function INT_AND = new BinaryFunction() {
+        @Override
+        protected double eval(double x, double y) {
+            return FastMath.round(x) & FastMath.round(y);
+        }
+    };
+
+    /**
+     * Provides access to the LEFT SHIFT operator
+     */
+    public static final Function INT_LEFT_SHIFT = new BinaryFunction() {
+        @Override
+        protected double eval(double x, double y) {
+            return FastMath.round(x) << FastMath.round(y);
+        }
+    };
+
+    /**
+     * Provides access to the RIGHT SHIFT operator
+     */
+    public static final Function INT_RIGHT_SHIFT = new BinaryFunction() {
+        @Override
+        protected double eval(double x, double y) {
+            return FastMath.round(x) >> FastMath.round(y);
+        }
+    };
+
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function INT_NOT = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return ~FastMath.round(x);
+        }
+    };
+
+    /**
+     * Provides access to the OR operator
+     */
+    public static final Function INT_OR = new BinaryFunction() {
+        @Override
+        protected double eval(double x, double y) {
+            return FastMath.round(x) | FastMath.round(y);
+        }
+    };
+
+    /**
+     * Provides access to the XOR operator
+     */
+    public static final Function INT_XOR = new BinaryFunction() {
+        @Override
+        protected double eval(double x, double y) {
+            return FastMath.round(x) ^ FastMath.round(y);
+        }
+    };
+
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function DOUBLE_BITS_TO_LONG = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Double.doubleToLongBits(x);
+        }
+    };
+
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function LONG_BITS_TO_DOUBLE = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Double.longBitsToDouble(Math.round(x));
+        }
+    };
+
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function FLOAT_BITS_TO_INT = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Float.floatToIntBits((float) x);
+        }
+    };
+
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function INT_BITS_TO_FLOAT = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Float.intBitsToFloat(Math.round((float) x));
+        }
+    };
+
+    /**
      * Provides an if-like function
      * <p>
      * It expects three arguments: A condition, an expression being evaluated if the condition is non zero and an
@@ -289,10 +422,10 @@ public class Functions {
         @Override
         public double eval(List<Expression> args) {
             double check = args.get(0).evaluate();
-            if (Double.isNaN(check)) {
+            if(Double.isNaN(check)) {
                 return check;
             }
-            if (FastMath.abs(check) > 0) {
+            if(FastMath.abs(check) > 0) {
                 return args.get(1).evaluate();
             } else {
                 return args.get(2).evaluate();
