@@ -8,6 +8,8 @@
 
 package parsii.eval;
 
+import net.jafama.FastMath;
+
 /**
  * Represents a binary operation.
  * <p>
@@ -146,25 +148,25 @@ public class BinaryOperation implements Expression {
             case DIVIDE:
                 return a / b;
             case POWER:
-                return Math.pow(a, b);
+                return FastMath.pow(a, b);
             case MODULO:
                 return a % b;
             case LT:
                 return a < b ? 1 : 0;
             case LT_EQ:
-                return a < b || Math.abs(a - b) < EPSILON ? 1 : 0;
+                return a < b || FastMath.abs(a - b) < EPSILON ? 1 : 0;
             case GT:
                 return a > b ? 1 : 0;
             case GT_EQ:
-                return a > b || Math.abs(a - b) < EPSILON ? 1 : 0;
+                return a > b || FastMath.abs(a - b) < EPSILON ? 1 : 0;
             case EQ:
-                return Math.abs(a - b) < EPSILON ? 1 : 0;
+                return FastMath.abs(a - b) < EPSILON ? 1 : 0;
             case NEQ:
-                return Math.abs(a - b) > EPSILON ? 1 : 0;
+                return FastMath.abs(a - b) > EPSILON ? 1 : 0;
             case AND:
-                return Math.abs(a) > 0 && Math.abs(b) > 0 ? 1 : 0;
+                return FastMath.abs(a) > 0 && FastMath.abs(b) > 0 ? 1 : 0;
             case OR:
-                return Math.abs(a) > 0 || Math.abs(b) > 0 ? 1 : 0;
+                return FastMath.abs(a) > 0 || FastMath.abs(b) > 0 ? 1 : 0;
             default:
                 throw new UnsupportedOperationException(String.valueOf(op));
         }

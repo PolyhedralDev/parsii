@@ -22,15 +22,16 @@ import java.util.concurrent.ConcurrentHashMap;
  * shared by two expression or kept separate, if required.
  */
 public class Scope {
-    private static Scope                 root;
-    private final  Map<String, Variable> context             = new ConcurrentHashMap<>();
-    private        Scope                 parent;
-    private        boolean               autocreateVariables = true;
-    
+    private Scope parent;
+    private boolean autocreateVariables = true;
+    private Map<String, Variable> context = new ConcurrentHashMap<>();
+
+    private static Scope root;
+
     /**
      * Creates a new empty scope.
      * <p>
-     * The scope will not be completely empty, as {@link Math#PI} (pi) and {@link Math#E} (E) are always
+     * The scope will not be completely empty, as {@link FastMath#PI} (pi) and {@link FastMath#E} (E) are always
      * defined as constants.
      * <p>
      * If an not yet known variable is accessed, it will be created and initialized with 0.
@@ -38,13 +39,13 @@ public class Scope {
     public Scope() {
         this(false);
     }
-    
+
     private Scope(boolean skipParent) {
         if (!skipParent) {
             this.parent = getRootScope();
         }
     }
-    
+
     /**
      * Determines if strict lookup should be used or not.
      * <p>
@@ -58,10 +59,10 @@ public class Scope {
      */
     public Scope withStrictLookup(boolean strictLookup) {
         this.autocreateVariables = !strictLookup;
-    
+
         return this;
     }
-    
+
     /**
      * Specifies the parent scope for this scope.
      * <p>
@@ -79,10 +80,10 @@ public class Scope {
         } else {
             this.parent = parent;
         }
-        
+
         return this;
     }
-    
+
     /*
      * Creates the internal root scope which contains eternal constants ;-)
      */
@@ -94,10 +95,10 @@ public class Scope {
                 root.create("euler").makeConstant(Math.E);
             }
         }
-        
+
         return root;
     }
-    
+
     /**
      * Searches or creates a variable in this scope.
      * <p>
@@ -114,10 +115,10 @@ public class Scope {
         }
         Variable result = new Variable(name);
         context.put(name, result);
-        
+
         return result;
     }
-    
+
     /**
      * Searches for a {@link Variable} with the given name.
      * <p>
@@ -136,7 +137,7 @@ public class Scope {
         }
         return null;
     }
-    
+
     /**
      * Searches for or creates a variable with the given name.
      * <p>
@@ -157,10 +158,10 @@ public class Scope {
         if (!autocreateVariables) {
             throw new IllegalArgumentException();
         }
-    
+
         return create(name);
     }
-    
+
     /**
      * Removes the variable with the given name from this scope.
      * <p>
@@ -177,7 +178,7 @@ public class Scope {
             return null;
         }
     }
-    
+
     /**
      * Returns all names of variables known to this scope (ignoring those of the parent scope).
      *
@@ -186,7 +187,7 @@ public class Scope {
     public Set<String> getLocalNames() {
         return context.keySet();
     }
-    
+
     /**
      * Returns all names of variables known to this scope or one of its parent scopes.
      *
@@ -201,7 +202,7 @@ public class Scope {
         result.addAll(getLocalNames());
         return result;
     }
-    
+
     /**
      * Returns all variables known to this scope (ignoring those of the parent scope).
      *
@@ -210,7 +211,7 @@ public class Scope {
     public Collection<Variable> getLocalVariables() {
         return context.values();
     }
-    
+
     /**
      * Returns all variables known to this scope or one of its parent scopes.
      *

@@ -8,7 +8,7 @@
 
 package parsii.eval;
 
-import org.apache.commons.math3.util.FastMath;
+import net.jafama.FastMath;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import java.util.List;
  */
 @SuppressWarnings("SuspiciousNameCombination")
 public class Functions {
-    
+
     /**
      * Provides access to {@link FastMath#sin(double)}
      */
@@ -30,7 +30,7 @@ public class Functions {
             return FastMath.sin(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#sinh(double)}
      */
@@ -40,7 +40,7 @@ public class Functions {
             return FastMath.sinh(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#cos(double)}
      */
@@ -50,7 +50,7 @@ public class Functions {
             return FastMath.cos(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#cosh(double)}
      */
@@ -60,7 +60,7 @@ public class Functions {
             return FastMath.cosh(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#tan(double)}
      */
@@ -70,7 +70,7 @@ public class Functions {
             return FastMath.tan(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#tanh(double)}
      */
@@ -80,7 +80,7 @@ public class Functions {
             return FastMath.tanh(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#abs(double)}
      */
@@ -90,7 +90,7 @@ public class Functions {
             return FastMath.abs(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#asin(double)}
      */
@@ -100,7 +100,7 @@ public class Functions {
             return FastMath.asin(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#acos(double)}
      */
@@ -110,7 +110,7 @@ public class Functions {
             return FastMath.acos(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#atan(double)}
      */
@@ -120,7 +120,7 @@ public class Functions {
             return FastMath.atan(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#atan2(double, double)}
      */
@@ -130,7 +130,7 @@ public class Functions {
             return FastMath.atan2(a, b);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#round(double)}
      */
@@ -140,7 +140,7 @@ public class Functions {
             return FastMath.round(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#floor(double)}
      */
@@ -150,7 +150,7 @@ public class Functions {
             return FastMath.floor(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#ceil(double)}
      */
@@ -160,7 +160,7 @@ public class Functions {
             return FastMath.ceil(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#pow(double, double)}
      */
@@ -170,7 +170,7 @@ public class Functions {
             return FastMath.pow(a, b);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#sqrt(double)}
      */
@@ -180,7 +180,7 @@ public class Functions {
             return FastMath.sqrt(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#cbrt(double)}
      * (cube root)
@@ -191,7 +191,7 @@ public class Functions {
             return FastMath.cbrt(a);
         }
     };
-    
+
     /**
      * Provides access to the nth root of a value.
      */
@@ -201,7 +201,7 @@ public class Functions {
             return Math.pow(Math.E, Math.log(a) / b);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#exp(double)}
      */
@@ -211,7 +211,7 @@ public class Functions {
             return FastMath.exp(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#log(double)}
      */
@@ -221,7 +221,7 @@ public class Functions {
             return FastMath.log(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#log10(double)}
      */
@@ -231,7 +231,7 @@ public class Functions {
             return FastMath.log10(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#min(double, double)}
      */
@@ -241,7 +241,7 @@ public class Functions {
             return FastMath.min(a, b);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#max(double, double)}
      */
@@ -251,7 +251,7 @@ public class Functions {
             return FastMath.max(a, b);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#signum(double)}
      */
@@ -261,7 +261,7 @@ public class Functions {
             return FastMath.signum(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#toDegrees(double)}
      */
@@ -271,7 +271,7 @@ public class Functions {
             return FastMath.toDegrees(a);
         }
     };
-    
+
     /**
      * Provides access to {@link FastMath#toRadians(double)}
      */
@@ -281,7 +281,7 @@ public class Functions {
             return FastMath.toRadians(a);
         }
     };
-    
+
     /**
      * Provides access to a sigmoid function.
      */
@@ -291,7 +291,7 @@ public class Functions {
             return 1 / (FastMath.exp(-1 * x * a));
         }
     };
-    
+
     /**
      * Provides access to the AND operator
      */
@@ -301,7 +301,7 @@ public class Functions {
             return FastMath.round(x) & FastMath.round(y);
         }
     };
-    
+
     /**
      * Provides access to the LEFT SHIFT operator
      */
@@ -311,7 +311,7 @@ public class Functions {
             return FastMath.round(x) << FastMath.round(y);
         }
     };
-    
+
     /**
      * Provides access to the RIGHT SHIFT operator
      */
@@ -321,7 +321,7 @@ public class Functions {
             return FastMath.round(x) >> FastMath.round(y);
         }
     };
-    
+
     /**
      * Provides access to the NOT operator
      */
@@ -331,7 +331,7 @@ public class Functions {
             return ~FastMath.round(x);
         }
     };
-    
+
     /**
      * Provides access to the OR operator
      */
@@ -341,7 +341,7 @@ public class Functions {
             return FastMath.round(x) | FastMath.round(y);
         }
     };
-    
+
     /**
      * Provides access to the XOR operator
      */
@@ -351,7 +351,7 @@ public class Functions {
             return FastMath.round(x) ^ FastMath.round(y);
         }
     };
-    
+
     /**
      * Provides access to the NOT operator
      */
@@ -361,7 +361,7 @@ public class Functions {
             return Double.doubleToLongBits(x);
         }
     };
-    
+
     /**
      * Provides access to the NOT operator
      */
@@ -371,7 +371,7 @@ public class Functions {
             return Double.longBitsToDouble(Math.round(x));
         }
     };
-    
+
     /**
      * Provides access to the NOT operator
      */
@@ -381,7 +381,7 @@ public class Functions {
             return Float.floatToIntBits((float) x);
         }
     };
-    
+
     /**
      * Provides access to the NOT operator
      */
@@ -391,7 +391,7 @@ public class Functions {
             return Float.intBitsToFloat(Math.round((float) x));
         }
     };
-    
+
     /**
      * Provides an if-like function
      * <p>
@@ -399,29 +399,29 @@ public class Functions {
      * expression which is being evaluated if the condition is zero.
      */
     public static final Function IF = new IfFunction();
-    
+
     private Functions() {
     }
-    
+
     private static class IfFunction implements Function {
         @Override
         public int getNumberOfArguments() {
             return 3;
         }
-        
+
         @Override
         public double eval(List<Expression> args) {
             double check = args.get(0).evaluate();
             if (Double.isNaN(check)) {
                 return check;
             }
-            if (Math.abs(check) > 0) {
+            if (FastMath.abs(check) > 0) {
                 return args.get(1).evaluate();
             } else {
                 return args.get(2).evaluate();
             }
         }
-        
+
         @Override
         public boolean isNaturalFunction() {
             return false;
