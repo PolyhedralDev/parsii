@@ -198,7 +198,7 @@ public class Functions {
     public static final Function ROOT = new BinaryFunction() {
         @Override
         protected double eval(double a, double b) {
-            return Math.pow(Math.E, Math.log(a) / b);
+            return FastMath.pow(FastMath.E, FastMath.log(a) / b);
         }
     };
 
@@ -253,12 +253,12 @@ public class Functions {
     };
 
     /**
-     * Provides access to {@link Math#random()} which will be multiplied by the given argument.
+     * Provides access to {@link FastMath#random()} which will be multiplied by the given argument.
      */
     public static final Function RND = new UnaryFunction() {
         @Override
         protected double eval(double a) {
-            return Math.random() * a;
+            return FastMath.random() * a;
         }
     };
 

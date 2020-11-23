@@ -59,8 +59,8 @@ public class Scope {
         if(root == null) {
             synchronized(Scope.class) {
                 root = new Scope(true);
-                root.create("pi").makeConstant(Math.PI);
-                root.create("euler").makeConstant(Math.E);
+                root.create("pi").makeConstant(FastMath.PI);
+                root.create("euler").makeConstant(FastMath.E);
             }
         }
 
