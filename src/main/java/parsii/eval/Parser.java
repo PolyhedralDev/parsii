@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 /**
  * Parses a given mathematical expression into an abstract syntax tree which can be evaluated.
  * <p>
@@ -43,14 +44,13 @@ import java.util.TreeMap;
 public class Parser {
 
     private final Scope scope;
-    private List<ParseError> errors = new ArrayList<>();
-    private Tokenizer tokenizer;
-    private Map<String, Function> functionTable;
+    private final List<ParseError> errors = new ArrayList<>();
+    private final Tokenizer tokenizer;
+    private final Map<String, Function> functionTable;
 
     /*
      * Setup well known functions
-     */
-    {
+     */ {
         functionTable = new TreeMap<>();
 
         registerFunction("sin", Functions.SIN);
@@ -76,9 +76,29 @@ public class Parser {
         registerFunction("pow", Functions.POW);
         registerFunction("min", Functions.MIN);
         registerFunction("max", Functions.MAX);
-        registerFunction("rnd", Functions.RND);
         registerFunction("sign", Functions.SIGN);
         registerFunction("if", Functions.IF);
+        // custom functions
+        registerFunction("root", Functions.ROOT);
+        registerFunction("cbrt", Functions.CBRT);
+        registerFunction("sigmoid", Functions.SIGMOID);
+        registerFunction("int_and", Functions.INT_AND);
+        registerFunction("int_left_bit_shift", Functions.INT_LEFT_SHIFT);
+        registerFunction("int_right_bit_shift", Functions.INT_RIGHT_SHIFT);
+        registerFunction("int_not", Functions.INT_NOT);
+        registerFunction("int_or", Functions.INT_OR);
+        registerFunction("int_xor", Functions.INT_XOR);
+        registerFunction("double_to_long_bits", Functions.DOUBLE_BITS_TO_LONG);
+        registerFunction("long_bits_to_double", Functions.LONG_BITS_TO_DOUBLE);
+        registerFunction("float_bits_to_int", Functions.FLOAT_BITS_TO_INT);
+        registerFunction("int_bits_to_float", Functions.INT_BITS_TO_FLOAT);
+
+        // pls no use
+        registerFunction("rnd", Functions.RND);
+    }
+
+    public Parser() {
+        this(new StringReader(""), new Scope(), new TreeMap<>());
     }
 
     protected Parser(Reader input, Scope scope, Map<String, Function> functionTable) {
@@ -86,10 +106,6 @@ public class Parser {
         tokenizer = new Tokenizer(input);
         tokenizer.setProblemCollector(errors);
         this.functionTable.putAll(functionTable);
-    }
-
-    public Parser() {
-        this(new StringReader(""), new Scope(), new TreeMap<>());
     }
 
     public Scope getScope() {
@@ -167,13 +183,13 @@ public class Parser {
      */
     public Expression parse() throws ParseException {
         Expression result = expression().simplify();
-        if (tokenizer.current().isNotEnd()) {
+        if(tokenizer.current().isNotEnd()) {
             Token token = tokenizer.consume();
             errors.add(ParseError.error(token,
-                                        String.format("Unexpected token: '%s'. Expected an expression.",
-                                                      token.getSource())));
+                    String.format("Unexpected token: '%s'. Expected an expression.",
+                            token.getSource())));
         }
-        if (!errors.isEmpty()) {
+        if(!errors.isEmpty()) {
             throw ParseException.create(errors);
         }
         return result;
@@ -189,12 +205,12 @@ public class Parser {
      */
     protected Expression expression() {
         Expression left = relationalExpression();
-        if (tokenizer.current().isSymbol("&&")) {
+        if(tokenizer.current().isSymbol("&&")) {
             tokenizer.consume();
             Expression right = expression();
             return reOrder(left, right, BinaryOperation.Op.AND);
         }
-        if (tokenizer.current().isSymbol("||")) {
+        if(tokenizer.current().isSymbol("||")) {
             tokenizer.consume();
             Expression right = expression();
             return reOrder(left, right, BinaryOperation.Op.OR);
@@ -212,32 +228,32 @@ public class Parser {
      */
     protected Expression relationalExpression() {
         Expression left = term();
-        if (tokenizer.current().isSymbol("<")) {
+        if(tokenizer.current().isSymbol("<")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.LT);
         }
-        if (tokenizer.current().isSymbol("<=")) {
+        if(tokenizer.current().isSymbol("<=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.LT_EQ);
         }
-        if (tokenizer.current().isSymbol("=")) {
+        if(tokenizer.current().isSymbol("=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.EQ);
         }
-        if (tokenizer.current().isSymbol(">=")) {
+        if(tokenizer.current().isSymbol(">=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.GT_EQ);
         }
-        if (tokenizer.current().isSymbol(">")) {
+        if(tokenizer.current().isSymbol(">")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.GT);
         }
-        if (tokenizer.current().isSymbol("!=")) {
+        if(tokenizer.current().isSymbol("!=")) {
             tokenizer.consume();
             Expression right = relationalExpression();
             return reOrder(left, right, BinaryOperation.Op.NEQ);
@@ -254,18 +270,18 @@ public class Parser {
      */
     protected Expression term() {
         Expression left = product();
-        if (tokenizer.current().isSymbol("+")) {
+        if(tokenizer.current().isSymbol("+")) {
             tokenizer.consume();
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.ADD);
         }
-        if (tokenizer.current().isSymbol("-")) {
+        if(tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
             Expression right = term();
             return reOrder(left, right, BinaryOperation.Op.SUBTRACT);
         }
-        if (tokenizer.current().isNumber()) {
-            if (tokenizer.current().getContents().startsWith("-")) {
+        if(tokenizer.current().isNumber()) {
+            if(tokenizer.current().getContents().startsWith("-")) {
                 Expression right = term();
                 return reOrder(left, right, BinaryOperation.Op.ADD);
             }
@@ -283,17 +299,17 @@ public class Parser {
      */
     protected Expression product() {
         Expression left = power();
-        if (tokenizer.current().isSymbol("*")) {
+        if(tokenizer.current().isSymbol("*")) {
             tokenizer.consume();
             Expression right = product();
             return reOrder(left, right, BinaryOperation.Op.MULTIPLY);
         }
-        if (tokenizer.current().isSymbol("/")) {
+        if(tokenizer.current().isSymbol("/")) {
             tokenizer.consume();
             Expression right = product();
             return reOrder(left, right, BinaryOperation.Op.DIVIDE);
         }
-        if (tokenizer.current().isSymbol("%")) {
+        if(tokenizer.current().isSymbol("%")) {
             tokenizer.consume();
             Expression right = product();
             return reOrder(left, right, BinaryOperation.Op.MODULO);
@@ -306,9 +322,9 @@ public class Parser {
      * in natural order (from left to right).
      */
     protected Expression reOrder(Expression left, Expression right, BinaryOperation.Op op) {
-        if (right instanceof BinaryOperation) {
+        if(right instanceof BinaryOperation) {
             BinaryOperation rightOp = (BinaryOperation) right;
-            if (!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
+            if(!rightOp.isSealed() && rightOp.getOp().getPriority() == op.getPriority()) {
                 replaceLeft(rightOp, left, op);
                 return right;
             }
@@ -317,9 +333,9 @@ public class Parser {
     }
 
     protected void replaceLeft(BinaryOperation target, Expression newLeft, BinaryOperation.Op op) {
-        if (target.getLeft() instanceof BinaryOperation) {
+        if(target.getLeft() instanceof BinaryOperation) {
             BinaryOperation leftOp = (BinaryOperation) target.getLeft();
-            if (!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
+            if(!leftOp.isSealed() && leftOp.getOp().getPriority() == op.getPriority()) {
                 replaceLeft(leftOp, newLeft, op);
                 return;
             }
@@ -336,7 +352,7 @@ public class Parser {
      */
     protected Expression power() {
         Expression left = atom();
-        if (tokenizer.current().isSymbol("^") || tokenizer.current().isSymbol("**")) {
+        if(tokenizer.current().isSymbol("^") || tokenizer.current().isSymbol("**")) {
             tokenizer.consume();
             Expression right = power();
             return reOrder(left, right, BinaryOperation.Op.POWER);
@@ -354,27 +370,27 @@ public class Parser {
      * @return an atom parsed from the given input
      */
     protected Expression atom() {
-        if (tokenizer.current().isSymbol("-")) {
+        if(tokenizer.current().isSymbol("-")) {
             tokenizer.consume();
             BinaryOperation result = new BinaryOperation(BinaryOperation.Op.SUBTRACT, new Constant(0d), atom());
             result.seal();
             return result;
         }
-        if (tokenizer.current().isSymbol("+") && tokenizer.next().isSymbol("(")) {
+        if(tokenizer.current().isSymbol("+") && tokenizer.next().isSymbol("(")) {
             // Support for brackets with a leading + like "+(2.2)" in this case we simply ignore the
             // + sign
             tokenizer.consume();
         }
-        if (tokenizer.current().isSymbol("(")) {
+        if(tokenizer.current().isSymbol("(")) {
             tokenizer.consume();
             Expression result = expression();
-            if (result instanceof BinaryOperation) {
+            if(result instanceof BinaryOperation) {
                 ((BinaryOperation) result).seal();
             }
             expect(Token.TokenType.SYMBOL, ")");
             return result;
         }
-        if (tokenizer.current().isSymbol("|")) {
+        if(tokenizer.current().isSymbol("|")) {
             tokenizer.consume();
             FunctionCall call = new FunctionCall();
             call.addParameter(expression());
@@ -382,16 +398,16 @@ public class Parser {
             expect(Token.TokenType.SYMBOL, "|");
             return call;
         }
-        if (tokenizer.current().isIdentifier()) {
-            if (tokenizer.next().isSymbol("(")) {
+        if(tokenizer.current().isIdentifier()) {
+            if(tokenizer.next().isSymbol("(")) {
                 return functionCall();
             }
             Token variableName = tokenizer.consume();
             try {
                 return new VariableReference(scope.getVariable(variableName.getContents()));
-            } catch (@SuppressWarnings("UnusedCatchParameter") IllegalArgumentException e) {
+            } catch(@SuppressWarnings("UnusedCatchParameter") IllegalArgumentException e) {
                 errors.add(ParseError.error(variableName,
-                                            String.format("Unknown variable: '%s'", variableName.getContents())));
+                        String.format("Unknown variable: '%s'", variableName.getContents())));
                 return new Constant(0);
             }
         }
@@ -407,45 +423,54 @@ public class Parser {
      */
     @SuppressWarnings("squid:S1698")
     private Expression literalAtom() {
-        if (tokenizer.current().isSymbol("+") && tokenizer.next().isNumber()) {
+        if(tokenizer.current().isSymbol("+") && tokenizer.next().isNumber()) {
             // Parse numbers with a leading + sign like +2.02 by simply ignoring the +
             tokenizer.consume();
         }
-        if (tokenizer.current().isNumber()) {
+        if(tokenizer.current().isNumber()) {
             double value = Double.parseDouble(tokenizer.consume().getContents());
-            if (tokenizer.current().is(Token.TokenType.ID)) {
+            if(tokenizer.current().is(Token.TokenType.ID)) {
                 String quantifier = tokenizer.current().getContents().intern();
-                if ("n" == quantifier) {
-                    value /= 1000000000d;
-                    tokenizer.consume();
-                } else if ("u" == quantifier) {
-                    value /= 1000000d;
-                    tokenizer.consume();
-                } else if ("m" == quantifier) {
-                    value /= 1000d;
-                    tokenizer.consume();
-                } else if ("K" == quantifier || "k" == quantifier) {
-                    value *= 1000d;
-                    tokenizer.consume();
-                } else if ("M" == quantifier) {
-                    value *= 1000000d;
-                    tokenizer.consume();
-                } else if ("G" == quantifier) {
-                    value *= 1000000000d;
-                    tokenizer.consume();
-                } else {
-                    Token token = tokenizer.consume();
-                    errors.add(ParseError.error(token,
-                                                String.format("Unexpected token: '%s'. Expected a valid quantifier.",
-                                                              token.getSource())));
+                switch(quantifier) {
+                    case "n":
+                        value /= 1000000000d;
+                        tokenizer.consume();
+                        break;
+                    case "u":
+                        value /= 1000000d;
+                        tokenizer.consume();
+                        break;
+                    case "m":
+                        value /= 1000d;
+                        tokenizer.consume();
+                        break;
+                    case "K":
+                    case "k":
+                        value *= 1000d;
+                        tokenizer.consume();
+                        break;
+                    case "M":
+                        value *= 1000000d;
+                        tokenizer.consume();
+                        break;
+                    case "G":
+                        value *= 1000000000d;
+                        tokenizer.consume();
+                        break;
+                    default:
+                        Token token = tokenizer.consume();
+                        errors.add(ParseError.error(token,
+                                String.format("Unexpected token: '%s'. Expected a valid quantifier.",
+                                        token.getSource())));
+                        break;
                 }
             }
             return new Constant(value);
         }
         Token token = tokenizer.consume();
         errors.add(ParseError.error(token,
-                                    String.format("Unexpected token: '%s'. Expected an expression.",
-                                                  token.getSource())));
+                String.format("Unexpected token: '%s'. Expected an expression.",
+                        token.getSource())));
         return Constant.EMPTY;
     }
 
@@ -458,28 +483,28 @@ public class Parser {
         FunctionCall call = new FunctionCall();
         Token funToken = tokenizer.consume();
         Function fun = functionTable.get(funToken.getContents());
-        if (fun == null) {
+        if(fun == null) {
             errors.add(ParseError.error(funToken, String.format("Unknown function: '%s'", funToken.getContents())));
         }
         call.setFunction(fun);
         tokenizer.consume();
-        while (!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
-            if (!call.getParameters().isEmpty()) {
+        while(!tokenizer.current().isSymbol(")") && tokenizer.current().isNotEnd()) {
+            if(!call.getParameters().isEmpty()) {
                 expect(Token.TokenType.SYMBOL, ",");
             }
             call.addParameter(expression());
         }
         expect(Token.TokenType.SYMBOL, ")");
-        if (fun == null) {
+        if(fun == null) {
             return Constant.EMPTY;
         }
-        if (call.getParameters().size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
+        if(call.getParameters().size() != fun.getNumberOfArguments() && fun.getNumberOfArguments() >= 0) {
             errors.add(ParseError.error(funToken,
-                                        String.format(
-                                                "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
-                                                funToken.getContents(),
-                                                fun.getNumberOfArguments(),
-                                                call.getParameters().size())));
+                    String.format(
+                            "Number of arguments for function '%s' do not match. Expected: %d, Found: %d",
+                            funToken.getContents(),
+                            fun.getNumberOfArguments(),
+                            call.getParameters().size())));
             return Constant.EMPTY;
         }
         return call;
@@ -495,13 +520,13 @@ public class Parser {
      * @param trigger the trigger of the expected token
      */
     protected void expect(Token.TokenType type, String trigger) {
-        if (tokenizer.current().matches(type, trigger)) {
+        if(tokenizer.current().matches(type, trigger)) {
             tokenizer.consume();
         } else {
             errors.add(ParseError.error(tokenizer.current(),
-                                        String.format("Unexpected token '%s'. Expected: '%s'",
-                                                      tokenizer.current().getSource(),
-                                                      trigger)));
+                    String.format("Unexpected token '%s'. Expected: '%s'",
+                            tokenizer.current().getSource(),
+                            trigger)));
         }
     }
 }

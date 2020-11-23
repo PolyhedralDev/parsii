@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 
+
 /**
  * An efficient reader of character streams, reading character by character and supporting lookaheads.
  * <p>
@@ -20,7 +21,7 @@ import java.io.Reader;
  */
 public class LookaheadReader extends Lookahead<Char> {
 
-    private Reader input;
+    private final Reader input;
     private int line = 1;
     private int pos = 0;
 
@@ -33,10 +34,29 @@ public class LookaheadReader extends Lookahead<Char> {
      * @param input the reader to draw the input from
      */
     public LookaheadReader(Reader input) {
-        if (input == null) {
+        if(input == null) {
             throw new IllegalArgumentException("input must not be null");
         }
         this.input = new BufferedReader(input);
+    }
+
+    @Override
+    protected Char fetch() {
+        try {
+            int character = input.read();
+            if(character == -1) {
+                return null;
+            }
+            if(character == '\n') {
+                line++;
+                pos = 0;
+            }
+            pos++;
+            return new Char((char) character, line, pos);
+        } catch(IOException e) {
+            problemCollector.add(ParseError.error(new Char('\0', line, pos), e.getMessage()));
+            return null;
+        }
     }
 
     @Override
@@ -45,30 +65,11 @@ public class LookaheadReader extends Lookahead<Char> {
     }
 
     @Override
-    protected Char fetch() {
-        try {
-            int character = input.read();
-            if (character == -1) {
-                return null;
-            }
-            if (character == '\n') {
-                line++;
-                pos = 0;
-            }
-            pos++;
-            return new Char((char) character, line, pos);
-        } catch (IOException e) {
-            problemCollector.add(ParseError.error(new Char('\0', line, pos), e.getMessage()));
-            return null;
-        }
-    }
-
-    @Override
     public String toString() {
-        if (itemBuffer.isEmpty()) {
+        if(itemBuffer.isEmpty()) {
             return line + ":" + pos + ": Buffer empty";
         }
-        if (itemBuffer.size() < 2) {
+        if(itemBuffer.size() < 2) {
             return line + ":" + pos + ": " + current();
         }
         return line + ":" + pos + ": " + current() + ", " + next();

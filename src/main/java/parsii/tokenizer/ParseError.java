@@ -15,16 +15,10 @@ package parsii.tokenizer;
  */
 public class ParseError {
 
-    private Position pos;
-    private String message;
     private final Severity severity;
+    private final Position pos;
+    private final String message;
 
-    /**
-     * Specifies whether an error (unrecoverable problem) or a warning occurred.
-     */
-    public enum Severity {
-        WARNING, ERROR
-    }
 
     /*
      * Use one of the factory methods to create a new instance
@@ -46,7 +40,7 @@ public class ParseError {
      */
     public static ParseError warning(Position pos, String msg) {
         String message = msg;
-        if (pos.getLine() > 0) {
+        if(pos.getLine() > 0) {
             message = String.format("%3d:%2d: %s", pos.getLine(), pos.getPos(), msg);
         }
         return new ParseError(pos, message, Severity.WARNING);
@@ -63,7 +57,7 @@ public class ParseError {
      */
     public static ParseError error(Position pos, String msg) {
         String message = msg;
-        if (pos.getLine() > 0) {
+        if(pos.getLine() > 0) {
             message = String.format("%3d:%2d: %s", pos.getLine(), pos.getPos(), msg);
         }
         return new ParseError(pos, message, Severity.ERROR);
@@ -99,5 +93,13 @@ public class ParseError {
     @Override
     public String toString() {
         return String.format("%s %s", severity, message);
+    }
+
+    /**
+     * Specifies whether an error (unrecoverable problem) or a warning occurred.
+     */
+    public enum Severity {
+        WARNING,
+        ERROR
     }
 }

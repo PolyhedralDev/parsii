@@ -34,12 +34,12 @@ public class ParseException extends Exception {
      * @return a new ParseException which can be thrown
      */
     public static ParseException create(List<ParseError> errors) {
-        if (errors.size() == 1) {
+        if(errors.size() == 1) {
             return new ParseException(errors.get(0).getMessage(), errors);
-        } else if (errors.size() > 1) {
+        } else if(errors.size() > 1) {
             return new ParseException(String.format("%d errors occured. First: %s",
-                                                    errors.size(),
-                                                    errors.get(0).getMessage()), errors);
+                    errors.size(),
+                    errors.get(0).getMessage()), errors);
         } else {
             return new ParseException("An unknown error occured", errors);
         }
@@ -57,8 +57,8 @@ public class ParseException extends Exception {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (ParseError error : errors) {
-            if (sb.length() > 0) {
+        for(ParseError error : errors) {
+            if(sb.length() > 0) {
                 sb.append("\n");
             }
             sb.append(error);

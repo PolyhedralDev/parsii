@@ -17,9 +17,9 @@ package parsii.tokenizer;
  * @see LookaheadReader
  */
 public class Char implements Position {
-    private char value;
-    private int line;
-    private int pos;
+    private final char value;
+    private final int line;
+    private final int pos;
 
     Char(char value, int line, int pos) {
         this.value = value;
@@ -74,15 +74,6 @@ public class Char implements Position {
     }
 
     /**
-     * Determines if the value is a line break
-     *
-     * @return <tt>true</tt> if the internal value is a line break, <tt>false</tt> otherwise
-     */
-    public boolean isNewLine() {
-        return value == '\n';
-    }
-
-    /**
      * Determines if this instance represents the end of input indicator
      *
      * @return <tt>true</tt> if this instance represents the end of the underlying input,
@@ -92,9 +83,18 @@ public class Char implements Position {
         return value == '\0';
     }
 
+    /**
+     * Determines if the value is a line break
+     *
+     * @return <tt>true</tt> if the internal value is a line break, <tt>false</tt> otherwise
+     */
+    public boolean isNewLine() {
+        return value == '\n';
+    }
+
     @Override
     public String toString() {
-        if (isEndOfInput()) {
+        if(isEndOfInput()) {
             return "<End Of Input>";
         } else {
             return String.valueOf(value);
@@ -108,8 +108,8 @@ public class Char implements Position {
      * @return <tt>true</tt> if the value equals to one of the give characters, <tt>false</tt> otherwise
      */
     public boolean is(char... tests) {
-        for (char test : tests) {
-            if (test == value && test != '\0') {
+        for(char test : tests) {
+            if(test == value && test != '\0') {
                 return true;
             }
         }
@@ -122,7 +122,7 @@ public class Char implements Position {
      * @return the internal character as string or "" if this is the end of input indicator
      */
     public String getStringValue() {
-        if (isEndOfInput()) {
+        if(isEndOfInput()) {
             return "";
         }
         return String.valueOf(value);

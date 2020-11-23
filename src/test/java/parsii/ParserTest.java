@@ -8,6 +8,7 @@
 
 package parsii;
 
+import org.junit.Assert;
 import org.junit.Test;
 import parsii.eval.BinaryOperation;
 import parsii.eval.Expression;
@@ -17,10 +18,7 @@ import parsii.eval.Scope;
 import parsii.eval.Variable;
 import parsii.tokenizer.ParseException;
 
-import java.io.StringReader;
-import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import static org.junit.Assert.*;
 
