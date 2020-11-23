@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     testImplementation("junit:junit:4.12")
-    testImplementation("com.googlecode.junit-toolbox:junit-toolbox:2.2")
+    testImplementation("com.googlecode.junit-toolbox:junit-toolbox:2.4")
     implementation("net.jafama:jafama:2.3.2")
 }
 
