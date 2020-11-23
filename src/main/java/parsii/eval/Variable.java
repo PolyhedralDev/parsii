@@ -18,11 +18,11 @@ package parsii.eval;
  * A variable can be made constant, which will fail all further attempts to change it.
  */
 public class Variable {
-    
-    private final String  name;
-    private       double  value    = 0d;
-    private       boolean constant = false;
-    
+
+    private final String name;
+    private double value = 0d;
+    private boolean constant = false;
+
     /**
      * Creates a new variable.
      * <p>
@@ -34,7 +34,7 @@ public class Variable {
     protected Variable(String name) {
         this.name = name;
     }
-    
+
     /**
      * Sets the given value and marks it as constant.
      *
@@ -44,7 +44,7 @@ public class Variable {
         setValue(value);
         this.constant = true;
     }
-    
+
     /**
      * Returns the value previously set.
      *
@@ -53,24 +53,36 @@ public class Variable {
     public double getValue() {
         return value;
     }
-    
+
+    /**
+     * Sets the value if the variable.
+     *
+     * @param value the new value of the variable
+     * @throws IllegalStateException if the variable is constant
+     */
+    public void setValue(double value) {
+        if(constant) {
+            throw new IllegalStateException(String.format("%s is constant!", name));
+        }
+        this.value = value;
+    }
+
     /**
      * Sets the value and returns <tt>this</tt>.
      *
      * @param value the new value of this variable
-     *
      * @return <tt>this</tt> for fluent method calls
      */
     public Variable withValue(double value) {
         setValue(value);
         return this;
     }
-    
+
     @Override
     public String toString() {
         return name + ": " + value;
     }
-    
+
     /**
      * Returns the name of the variable.
      *
@@ -79,7 +91,7 @@ public class Variable {
     public String getName() {
         return name;
     }
-    
+
     /**
      * Determines if this variable is constant.
      *
@@ -87,19 +99,5 @@ public class Variable {
      */
     public boolean isConstant() {
         return constant;
-    }
-    
-    /**
-     * Sets the value if the variable.
-     *
-     * @param value the new value of the variable
-     *
-     * @throws IllegalStateException if the variable is constant
-     */
-    public void setValue(double value) {
-        if (constant) {
-            throw new IllegalStateException(String.format("%s is constant!", name));
-        }
-        this.value = value;
     }
 }

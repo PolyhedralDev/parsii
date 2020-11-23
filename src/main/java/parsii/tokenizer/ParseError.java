@@ -14,12 +14,12 @@ package parsii.tokenizer;
  * Used by {@link ParseException} to collect as many errors as possible before failing (throwing).
  */
 public class ParseError {
-    
+
     private final Severity severity;
     private final Position pos;
-    private final String   message;
-    
-    
+    private final String message;
+
+
     /*
      * Use one of the factory methods to create a new instance
      */
@@ -28,7 +28,7 @@ public class ParseError {
         this.message = message;
         this.severity = severity;
     }
-    
+
     /**
      * Creates a new warning for the given position with the given message.
      * <p>
@@ -36,17 +36,16 @@ public class ParseError {
      *
      * @param pos the position where the warning occurred
      * @param msg the message explaining the warning
-     *
      * @return a new ParseError containing the warning
      */
     public static ParseError warning(Position pos, String msg) {
         String message = msg;
-        if (pos.getLine() > 0) {
+        if(pos.getLine() > 0) {
             message = String.format("%3d:%2d: %s", pos.getLine(), pos.getPos(), msg);
         }
         return new ParseError(pos, message, Severity.WARNING);
     }
-    
+
     /**
      * Creates a new error for the given position with the given message.
      * <p>
@@ -54,17 +53,16 @@ public class ParseError {
      *
      * @param pos the position where the error occurred
      * @param msg the message explaining the error
-     *
      * @return a new ParseError containing the error
      */
     public static ParseError error(Position pos, String msg) {
         String message = msg;
-        if (pos.getLine() > 0) {
+        if(pos.getLine() > 0) {
             message = String.format("%3d:%2d: %s", pos.getLine(), pos.getPos(), msg);
         }
         return new ParseError(pos, message, Severity.ERROR);
     }
-    
+
     /**
      * Provides the position where the error or warning occurred.
      *
@@ -73,7 +71,7 @@ public class ParseError {
     public Position getPosition() {
         return pos;
     }
-    
+
     /**
      * Provides the message explaining the error or warning.
      *
@@ -82,7 +80,7 @@ public class ParseError {
     public String getMessage() {
         return message;
     }
-    
+
     /**
      * Returns the severity, which indicates if this is an error or a warning.
      *
@@ -91,12 +89,12 @@ public class ParseError {
     public Severity getSeverity() {
         return severity;
     }
-    
+
     @Override
     public String toString() {
         return String.format("%s %s", severity, message);
     }
-    
+
     /**
      * Specifies whether an error (unrecoverable problem) or a warning occurred.
      */

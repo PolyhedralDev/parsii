@@ -16,11 +16,11 @@ import java.util.List;
  * Represents the invocation of a function.
  */
 public class FunctionCall implements Expression {
-    
-    private static final long             serialVersionUID = 5758404497296893915L;
-    private final        List<Expression> parameters       = new ArrayList<>();
-    private              Function         function;
-    
+
+    private static final long serialVersionUID = 5758404497296893915L;
+    private final List<Expression> parameters = new ArrayList<>();
+    private Function function;
+
     /**
      * Sets the function to evaluate.
      *
@@ -29,7 +29,7 @@ public class FunctionCall implements Expression {
     public void setFunction(Function function) {
         this.function = function;
     }
-    
+
     /**
      * Adds an expression as parameter.
      *
@@ -38,25 +38,25 @@ public class FunctionCall implements Expression {
     public void addParameter(Expression expression) {
         parameters.add(expression);
     }
-    
+
     @Override
     public double evaluate() {
         return function.eval(parameters);
     }
-    
+
     @Override
     public Expression simplify() {
-        if (!function.isNaturalFunction()) {
+        if(!function.isNaturalFunction()) {
             return this;
         }
-        for (Expression expr : parameters) {
-            if (!expr.isConstant()) {
+        for(Expression expr : parameters) {
+            if(!expr.isConstant()) {
                 return this;
             }
         }
         return new Constant(evaluate());
     }
-    
+
     /**
      * Returns all parameters added so far.
      *
@@ -65,6 +65,6 @@ public class FunctionCall implements Expression {
     public List<Expression> getParameters() {
         return parameters;
     }
-    
-    
+
+
 }

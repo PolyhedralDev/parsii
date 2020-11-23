@@ -12,9 +12,9 @@ package parsii.eval;
  * Represents a reference to a variable.
  */
 public class VariableReference implements Expression {
-    
+
     private final Variable var;
-    
+
     /**
      * Creates a new reference to the given variable.
      *
@@ -23,26 +23,26 @@ public class VariableReference implements Expression {
     public VariableReference(Variable var) {
         this.var = var;
     }
-    
+
     @Override
     public String toString() {
         return var.getName();
     }
-    
+
     @Override
     public double evaluate() {
         return var.getValue();
     }
-    
-    
+
+
     @Override
     public boolean isConstant() {
         return var.isConstant();
     }
-    
+
     @Override
     public Expression simplify() {
-        if (isConstant()) {
+        if(isConstant()) {
             return new Constant(evaluate());
         }
         return this;

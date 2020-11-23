@@ -412,10 +412,10 @@ public class Functions {
         @Override
         public double eval(List<Expression> args) {
             double check = args.get(0).evaluate();
-            if (Double.isNaN(check)) {
+            if(Double.isNaN(check)) {
                 return check;
             }
-            if (FastMath.abs(check) > 0) {
+            if(FastMath.abs(check) > 0) {
                 return args.get(1).evaluate();
             } else {
                 return args.get(2).evaluate();

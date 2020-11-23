@@ -25,25 +25,25 @@ public abstract class Lookahead<T> {
      * Internal buffer containing items which where already created due to lookaheads.
      */
     protected List<T> itemBuffer = new ArrayList<>();
-    
+
     /**
      * Determines if the end of the underlying data source has been reached.
      */
     protected boolean endReached = false;
-    
+
     /**
      * Used to collect problems which occurred when processing the input. This is used instead of classic exceptions,
      * so that errors can be recovered and we can continue to process to input to check for further errors or
      * problems.
      */
     protected List<ParseError> problemCollector = new ArrayList<>();
-    
+
     /**
      * Once the end of the underlying input was reached, an end of input indicator is created and constantly returned
      * for all calls of current and next.
      */
     protected T endOfInputIndicator;
-    
+
     /**
      * Returns the next item after the current one in the stream.
      * <p>
@@ -55,7 +55,7 @@ public abstract class Lookahead<T> {
     public T next() {
         return next(1);
     }
-    
+
     /**
      * Returns the item the stream is currently pointing at.
      * <p>
@@ -67,7 +67,7 @@ public abstract class Lookahead<T> {
     public T current() {
         return next(0);
     }
-    
+
     /**
      * Returns the next n-th item in the stream.
      * <p>
@@ -78,23 +78,22 @@ public abstract class Lookahead<T> {
      * return the same result.
      *
      * @param offset the number of items to skip
-     *
      * @return the n-th item in the stream
      */
     public T next(int offset) {
-        if (offset < 0) {
+        if(offset < 0) {
             throw new IllegalArgumentException("offset < 0");
         }
-        while (itemBuffer.size() <= offset && !endReached) {
+        while(itemBuffer.size() <= offset && !endReached) {
             T item = fetch();
-            if (item != null) {
+            if(item != null) {
                 itemBuffer.add(item);
             } else {
                 endReached = true;
             }
         }
-        if (offset >= itemBuffer.size()) {
-            if (endOfInputIndicator == null) {
+        if(offset >= itemBuffer.size()) {
+            if(endOfInputIndicator == null) {
                 endOfInputIndicator = endOfInput();
             }
             return endOfInputIndicator;
@@ -102,7 +101,7 @@ public abstract class Lookahead<T> {
             return itemBuffer.get(offset);
         }
     }
-    
+
     /**
      * Creates the end of input indicator item.
      * <p>
@@ -111,7 +110,7 @@ public abstract class Lookahead<T> {
      * @return a special item which marks the end of the input
      */
     protected abstract T endOfInput();
-    
+
     /**
      * Removes and returns the current item from the stream.
      * <p>After this method was called, all calls to {@link #current()} will then return the item, which
@@ -124,14 +123,14 @@ public abstract class Lookahead<T> {
         consume(1);
         return result;
     }
-    
+
     /**
      * Fetches the next item from the stream.
      *
      * @return the next item in the stream or <tt>null</tt> to indicate that the end was reached
      */
     protected abstract T fetch();
-    
+
     /**
      * Consumes (removes) <tt>numberOfItems</tt> at once.
      * <p>
@@ -140,34 +139,34 @@ public abstract class Lookahead<T> {
      * @param numberOfItems the number of items to remove
      */
     public void consume(int numberOfItems) {
-        if (numberOfItems < 0) {
+        if(numberOfItems < 0) {
             throw new IllegalArgumentException("numberOfItems < 0");
         }
-        while (numberOfItems-- > 0) {
-            if (!itemBuffer.isEmpty()) {
+        while(numberOfItems-- > 0) {
+            if(!itemBuffer.isEmpty()) {
                 itemBuffer.remove(0);
             } else {
-                if (endReached) {
+                if(endReached) {
                     return;
                 }
                 T item = fetch();
-                if (item == null) {
+                if(item == null) {
                     endReached = true;
                 }
             }
         }
     }
-    
+
     /**
      * Provides access to the problem collector used by this instance.
      *
      * @return the problem collector used by this class. This returns the internally used list, therefore it should be
-     *         treat appropriately
+     * treat appropriately
      */
     public List<ParseError> getProblemCollector() {
         return problemCollector;
     }
-    
+
     /**
      * Installs the given problem collector.
      *

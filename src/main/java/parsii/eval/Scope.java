@@ -8,7 +8,14 @@
 
 package parsii.eval;
 
-import java.util.*;
+import net.jafama.FastMath;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -22,11 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * shared by two expression or kept separate, if required.
  */
 public class Scope {
+    private static Scope root;
     private Scope parent;
     private boolean autocreateVariables = true;
-    private Map<String, Variable> context = new ConcurrentHashMap<>();
-
-    private static Scope root;
+    private final Map<String, Variable> context = new ConcurrentHashMap<>();
 
     /**
      * Creates a new empty scope.
@@ -41,9 +47,24 @@ public class Scope {
     }
 
     private Scope(boolean skipParent) {
-        if (!skipParent) {
+        if(!skipParent) {
             this.parent = getRootScope();
         }
+    }
+
+    /*
+     * Creates the internal root scope which contains eternal constants ;-)
+     */
+    private static Scope getRootScope() {
+        if(root == null) {
+            synchronized(Scope.class) {
+                root = new Scope(true);
+                root.create("pi").makeConstant(Math.PI);
+                root.create("euler").makeConstant(Math.E);
+            }
+        }
+
+        return root;
     }
 
     /**
@@ -54,7 +75,6 @@ public class Scope {
      * By default, scopes are not strict and will automatically create variables when first reuqested.
      *
      * @param strictLookup <tt>true</tt> if the scope should be switched to strict lookup, <tt>false</tt>  otherwise
-     *
      * @return the instance itself for fluent method calls
      */
     public Scope withStrictLookup(boolean strictLookup) {
@@ -71,32 +91,16 @@ public class Scope {
      *
      * @param parent the parent scope to use. If <tt>null</tt>, the common root scope is used which defines a bunch of
      *               constants (e and pi).
-     *
      * @return the instance itself for fluent method calls
      */
     public Scope withParent(Scope parent) {
-        if (parent == null) {
+        if(parent == null) {
             this.parent = getRootScope();
         } else {
             this.parent = parent;
         }
 
         return this;
-    }
-
-    /*
-     * Creates the internal root scope which contains eternal constants ;-)
-     */
-    private static Scope getRootScope() {
-        if (root == null) {
-            synchronized (Scope.class) {
-                root = new Scope(true);
-                root.create("pi").makeConstant(Math.PI);
-                root.create("euler").makeConstant(Math.E);
-            }
-        }
-
-        return root;
     }
 
     /**
@@ -106,11 +110,10 @@ public class Scope {
      * the parent scope is not checked, but a new variable is created.
      *
      * @param name the variable to search or create
-     *
      * @return a variable with the given name from the local scope
      */
     public Variable create(String name) {
-        if (context.containsKey(name)) {
+        if(context.containsKey(name)) {
             return context.get(name);
         }
         Variable result = new Variable(name);
@@ -125,14 +128,13 @@ public class Scope {
      * If the variable does not exist <tt>null</tt>  will be returned
      *
      * @param name the name of the variable to search
-     *
      * @return the variable with the given name or <tt>null</tt> if no such variable was found
      */
     public Variable find(String name) {
-        if (context.containsKey(name)) {
+        if(context.containsKey(name)) {
             return context.get(name);
         }
-        if (parent != null) {
+        if(parent != null) {
             return parent.find(name);
         }
         return null;
@@ -144,18 +146,16 @@ public class Scope {
      * If no variable with the given name is found, a new variable is created in this scope
      *
      * @param name the variable to look for
-     *
      * @return a variable with the given name
-     *
      * @throws IllegalArgumentException if {@link #autocreateVariables} is <tt>false</tt> and the given
      *                                  variable was not creted yet.
      */
     public Variable getVariable(String name) {
         Variable result = find(name);
-        if (result != null) {
+        if(result != null) {
             return result;
         }
-        if (!autocreateVariables) {
+        if(!autocreateVariables) {
             throw new IllegalArgumentException();
         }
 
@@ -168,11 +168,10 @@ public class Scope {
      * If will not remove the variable from a parent scope.
      *
      * @param name the name of the variable to remove
-     *
      * @return the removed variable or <tt>null</tt> if no variable with the given name existed
      */
     public Variable remove(String name) {
-        if (context.containsKey(name)) {
+        if(context.containsKey(name)) {
             return context.remove(name);
         } else {
             return null;
@@ -194,7 +193,7 @@ public class Scope {
      * @return a set of all known variable names
      */
     public Set<String> getNames() {
-        if (parent == null) {
+        if(parent == null) {
             return getLocalNames();
         }
         Set<String> result = new TreeSet<>();
@@ -218,7 +217,7 @@ public class Scope {
      * @return a collection of all known variables
      */
     public Collection<Variable> getVariables() {
-        if (parent == null) {
+        if(parent == null) {
             return getLocalVariables();
         }
         List<Variable> result = new ArrayList<>();
