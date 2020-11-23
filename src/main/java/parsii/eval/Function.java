@@ -10,7 +10,6 @@ package parsii.eval;
 
 import java.util.List;
 
-
 /**
  * Defines a function which can be referenced and evaluated from within expressions.
  */

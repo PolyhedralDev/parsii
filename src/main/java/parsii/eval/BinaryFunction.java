@@ -10,7 +10,6 @@ package parsii.eval;
 
 import java.util.List;
 
-
 /**
  * Represents a binary function.
  * <p>

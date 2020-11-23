@@ -253,6 +253,16 @@ public class Functions {
     };
 
     /**
+     * Provides access to {@link Math#random()} which will be multiplied by the given argument.
+     */
+    public static final Function RND = new UnaryFunction() {
+        @Override
+        protected double eval(double a) {
+            return Math.random() * a;
+        }
+    };
+
+    /**
      * Provides access to {@link FastMath#signum(double)}
      */
     public static final Function SIGN = new UnaryFunction() {

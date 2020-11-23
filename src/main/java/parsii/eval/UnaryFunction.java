@@ -10,7 +10,6 @@ package parsii.eval;
 
 import java.util.List;
 
-
 /**
  * Represents an unary function.
  * <p>

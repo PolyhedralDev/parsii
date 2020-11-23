@@ -10,7 +10,6 @@ package parsii.tokenizer;
 
 import java.util.List;
 
-
 /**
  * Used to signal that processing an input failed.
  * <p>
