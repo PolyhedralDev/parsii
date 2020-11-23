@@ -180,7 +180,7 @@ public class ParserTest {
             public int getNumberOfArguments() {
                 return -1;
             }
-    
+            
             @Override
             public double eval(List<Expression> args) {
                 double avg = 0;
@@ -192,7 +192,7 @@ public class ParserTest {
                 }
                 return avg / args.size();
             }
-    
+            
             @Override
             public boolean isNaturalFunction() {
                 return true;
@@ -204,7 +204,7 @@ public class ParserTest {
             public int getNumberOfArguments() {
                 return -1;
             }
-    
+            
             @Override
             public double eval(List<Expression> args) {
                 double avg = 0;
@@ -216,7 +216,7 @@ public class ParserTest {
                 }
                 return avg;
             }
-    
+            
             @Override
             public boolean isNaturalFunction() {
                 return true;

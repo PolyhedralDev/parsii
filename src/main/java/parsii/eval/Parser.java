@@ -88,6 +88,10 @@ public class Parser {
         registerFunction("int_not", Functions.INT_NOT);
         registerFunction("int_or", Functions.INT_OR);
         registerFunction("int_xor", Functions.INT_XOR);
+        registerFunction("double_to_long_bits", Functions.DOUBLE_BITS_TO_LONG);
+        registerFunction("long_bits_to_double", Functions.LONG_BITS_TO_DOUBLE);
+        registerFunction("float_bits_to_int", Functions.FLOAT_BITS_TO_INT);
+        registerFunction("int_bits_to_float", Functions.INT_BITS_TO_FLOAT);
     }
     
     public Parser() {

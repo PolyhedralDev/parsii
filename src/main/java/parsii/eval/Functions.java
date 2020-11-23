@@ -293,7 +293,7 @@ public class Functions {
     };
     
     /**
-     * Provides access to an or function
+     * Provides access to the AND operator
      */
     public static final Function INT_AND = new BinaryFunction() {
         @Override
@@ -303,7 +303,7 @@ public class Functions {
     };
     
     /**
-     * Provides access to {@link FastMath#toRadians(double)}
+     * Provides access to the LEFT SHIFT operator
      */
     public static final Function INT_LEFT_SHIFT = new BinaryFunction() {
         @Override
@@ -313,7 +313,7 @@ public class Functions {
     };
     
     /**
-     * Provides access to {@link FastMath#toRadians(double)}
+     * Provides access to the RIGHT SHIFT operator
      */
     public static final Function INT_RIGHT_SHIFT = new BinaryFunction() {
         @Override
@@ -323,7 +323,7 @@ public class Functions {
     };
     
     /**
-     * Provides access to {@link FastMath#toRadians(double)}
+     * Provides access to the NOT operator
      */
     public static final Function INT_NOT = new UnaryFunction() {
         @Override
@@ -333,7 +333,7 @@ public class Functions {
     };
     
     /**
-     * Provides access to {@link FastMath#toRadians(double)}
+     * Provides access to the OR operator
      */
     public static final Function INT_OR = new BinaryFunction() {
         @Override
@@ -343,12 +343,52 @@ public class Functions {
     };
     
     /**
-     * Provides access to {@link FastMath#toRadians(double)}
+     * Provides access to the XOR operator
      */
     public static final Function INT_XOR = new BinaryFunction() {
         @Override
         protected double eval(double x, double y) {
             return FastMath.round(x) ^ FastMath.round(y);
+        }
+    };
+    
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function DOUBLE_BITS_TO_LONG = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Double.doubleToLongBits(x);
+        }
+    };
+    
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function LONG_BITS_TO_DOUBLE = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Double.longBitsToDouble(Math.round(x));
+        }
+    };
+    
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function FLOAT_BITS_TO_INT = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Float.floatToIntBits((float) x);
+        }
+    };
+    
+    /**
+     * Provides access to the NOT operator
+     */
+    public static final Function INT_BITS_TO_FLOAT = new UnaryFunction() {
+        @Override
+        protected double eval(double x) {
+            return Float.intBitsToFloat(Math.round((float) x));
         }
     };
     
