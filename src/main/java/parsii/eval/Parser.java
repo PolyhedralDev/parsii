@@ -92,6 +92,9 @@ public class Parser {
         registerFunction("long_bits_to_double", Functions.LONG_BITS_TO_DOUBLE);
         registerFunction("float_bits_to_int", Functions.FLOAT_BITS_TO_INT);
         registerFunction("int_bits_to_float", Functions.INT_BITS_TO_FLOAT);
+
+        // pls no use
+        registerFunction("rnd", Functions.RND);
     }
 
     public Parser() {
