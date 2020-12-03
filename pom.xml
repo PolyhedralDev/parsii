@@ -64,10 +64,12 @@
     </repositories>
     <distributionManagement>
         <repository>
-            <id>github</id>
-            <name>GitHub PolyhedralDev Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/PolyhedralDev/parsii</url>
+            <id>codemc-releases</id>
+            <url>https://repo.codemc.io/repository/maven-releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>codemc-snapshots</id>
+            <url>https://repo.codemc.io/repository/maven-snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
-
 </project>
