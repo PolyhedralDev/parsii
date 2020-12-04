@@ -8,11 +8,7 @@
 
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.scireum</groupId>
-        <artifactId>sirius-parent</artifactId>
-        <version>6.1</version>
-    </parent>
+    <groupId>com.scireum</groupId>
     <build>
         <plugins>
             <plugin>
@@ -56,12 +52,6 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>scireum-mvn</id>
-            <url>https://mvn.scireum.com</url>
-        </repository>
-    </repositories>
     <distributionManagement>
         <repository>
             <id>codemc-releases</id>
