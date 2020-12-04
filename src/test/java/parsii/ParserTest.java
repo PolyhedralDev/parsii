@@ -8,8 +8,7 @@
 
 package parsii;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import parsii.eval.BinaryOperation;
 import parsii.eval.Expression;
 import parsii.eval.Function;
@@ -20,7 +19,7 @@ import parsii.tokenizer.ParseException;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the {@link Parser} class.
